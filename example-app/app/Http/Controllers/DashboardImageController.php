@@ -168,7 +168,7 @@ class DashboardImageController extends Controller
         $this->text($image, 64, 78, 'K  DAILY BRIEF', 28, false, 700, 0.13);
         $this->text($image, 1172, 78, $now->format('l, F j, Y'), 24, true, 400, 0, 'right');
         $this->text($image, 618, 190, 'LOCAL TIME', 19, false, 700, 0.16, 'center');
-        $this->text($image, 618, 390, $now->format('g:i A'), 174, true, 400, -0.04, 'center');
+        $this->text($image, 618, 390, $now->format('H:i'), 174, true, 400, -0.04, 'center');
         $this->line($image, 64, 455, 1172, 455);
         $this->text($image, 64, 518, 'YOUR LOCAL FORECAST', 18, false, 700, 0.16);
         $this->text($image, 64, 566, $location['name'], 38);

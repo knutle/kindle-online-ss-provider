@@ -358,6 +358,7 @@ export default function WeatherDashboard() {
                     <time dateTime={now?.toISOString()}>
                         {now
                             ? new Intl.DateTimeFormat(undefined, {
+                                  hourCycle: 'h23',
                                   hour: '2-digit',
                                   minute: '2-digit',
                               }).format(now)
@@ -470,6 +471,7 @@ export default function WeatherDashboard() {
                                     : `Updated ${new Intl.DateTimeFormat(
                                           undefined,
                                           {
+                                              hourCycle: 'h23',
                                               hour: '2-digit',
                                               minute: '2-digit',
                                           },
