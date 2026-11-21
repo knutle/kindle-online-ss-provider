@@ -33,7 +33,7 @@ looked up using Open-Meteo's geocoding service; coordinates skip that lookup.
 Prerequisites:
 
 - PHP 8.3 or later and Composer
-- Node.js 22 and npm
+- Node.js 22.18.0 or later within 22.x and npm
 - Internet access for Open-Meteo weather/geocoding requests
 
 From the repository root, set up and start the application:
