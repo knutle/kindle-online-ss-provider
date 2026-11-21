@@ -77,6 +77,13 @@ npx wrangler secret put APP_KEY   # value from `php artisan key:generate --show`
 npx wrangler deploy               # builds cloudflare/Dockerfile and deploys
 ```
 
+### Automated deploys
+
+`.github/workflows/deploy-cloudflare.yml` deploys on pushes to `main` (or
+manually via *Run workflow*). Add these repository secrets: `CLOUDFLARE_API_TOKEN`
+(with Workers and Containers edit permissions), `CLOUDFLARE_ACCOUNT_ID`, and
+optionally `APP_KEY`, which is synced as the Worker secret.
+
 Notes:
 
 - The container uses cookie sessions, file cache, and a throwaway SQLite
