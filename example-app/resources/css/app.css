@@ -452,10 +452,17 @@
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] {
-    --screenshot-forecast-scale: calc(var(--screenshot-scale) * 1.3);
+    --screenshot-current-details-scale: calc(var(--screenshot-scale) * 1.3);
+    --screenshot-forecast-scale: calc(var(--screenshot-scale) * 1.755);
     --screenshot-scale: 1.3;
+    height: 100svh;
     min-height: 100svh;
-    padding: 0;
+    padding: 20px 0 30px;
+}
+
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-header {
+    border-top: 1px solid var(--ink);
+    padding-block: 0.9rem;
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-header,
@@ -469,7 +476,7 @@
 .kindle-dashboard[data-screenshot-mode='true']
     .kindle-forecast
     > .kindle-eyebrow {
-    padding-inline: 7px;
+    padding-inline: 20px;
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-brand {
@@ -492,7 +499,7 @@
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-clock-label,
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-eyebrow {
-    font-size: calc(0.72rem * var(--screenshot-scale));
+    font-size: calc(0.72rem * var(--screenshot-forecast-scale));
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-clock time {
@@ -541,24 +548,34 @@
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-current-details {
+    margin-left: 0;
     font-size: clamp(
-        calc(0.9rem * var(--screenshot-scale)),
-        calc(1.7vw * var(--screenshot-scale)),
-        calc(1.15rem * var(--screenshot-scale))
+        calc(0.9rem * var(--screenshot-current-details-scale)),
+        calc(1.7vw * var(--screenshot-current-details-scale)),
+        calc(1.15rem * var(--screenshot-current-details-scale))
     );
 }
 
-.kindle-dashboard[data-screenshot-mode='true'] .kindle-weather-facts span,
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-current {
+    justify-content: center;
+}
+
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-updated {
     font-size: calc(0.78rem * var(--screenshot-scale));
 }
 
-.kindle-dashboard[data-screenshot-mode='true'] .kindle-weather-facts strong {
-    font-size: calc(1rem * var(--screenshot-scale));
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-weather-facts span,
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-rain-chance {
+    font-size: calc(0.78rem * var(--screenshot-forecast-scale));
+}
+
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-weather-facts strong,
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-day-temperatures {
+    font-size: calc(1rem * var(--screenshot-forecast-scale));
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-forecast-day {
-    padding-inline: calc(0.35rem + 7px);
+    padding-inline: 20px;
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-forecast-day h2 {
@@ -567,16 +584,6 @@
         calc(1.6vw * var(--screenshot-forecast-scale)),
         calc(1.1rem * var(--screenshot-forecast-scale))
     );
-}
-
-.kindle-dashboard[data-screenshot-mode='true']
-    .kindle-forecast
-    > .kindle-eyebrow {
-    font-size: calc(0.72rem * var(--screenshot-forecast-scale));
-}
-
-.kindle-dashboard[data-screenshot-mode='true'] .kindle-day-temperatures {
-    font-size: calc(1rem * var(--screenshot-forecast-scale));
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-forecast-icon {
@@ -590,10 +597,6 @@
         calc(1.3vw * var(--screenshot-forecast-scale)),
         calc(0.9rem * var(--screenshot-forecast-scale))
     );
-}
-
-.kindle-dashboard[data-screenshot-mode='true'] .kindle-rain-chance {
-    font-size: calc(0.78rem * var(--screenshot-forecast-scale));
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-empty-icon {

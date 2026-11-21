@@ -17,7 +17,7 @@ class DashboardImageController extends Controller
 {
     private const WIDTH = 1236;
 
-    private const HEIGHT = 1598;
+    private const HEIGHT = 1586;
 
     public function __invoke(Request $request, DashboardImageRenderer $renderer): Response
     {

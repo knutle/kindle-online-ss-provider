@@ -17,7 +17,7 @@ class DashboardImageTest extends TestCase
                 parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
 
                 return $width === 1236
-                    && $height === 1598
+                    && $height === 1586
                     && ($query['latitude'] ?? null) === '59.91'
                     && ($query['longitude'] ?? null) === '10.75'
                     && ($query['label'] ?? null) === 'Oslo'
