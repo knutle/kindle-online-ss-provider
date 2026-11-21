@@ -40,9 +40,11 @@ type Forecast = {
     isDay: boolean;
     days: ForecastDay[];
     updatedAt: Date;
+    timezone: string;
 };
 
 type WeatherResponse = {
+    timezone?: string;
     current: {
         temperature_2m: number;
         apparent_temperature: number;
@@ -115,9 +117,10 @@ function formatDay(date: string, index: number): string {
     if (index === 0) return 'Today';
     if (index === 1) return 'Tomorrow';
 
-    return new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(
-        new Date(`${date}T12:00:00`),
-    );
+    return new Intl.DateTimeFormat(undefined, {
+        weekday: 'short',
+        timeZone: 'UTC',
+    }).format(new Date(`${date}T12:00:00Z`));
 }
 
 async function fetchForecast(location: WeatherLocation): Promise<Forecast> {
@@ -129,7 +132,9 @@ async function fetchForecast(location: WeatherLocation): Promise<Forecast> {
         daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
         temperature_unit: 'celsius',
         wind_speed_unit: 'kmh',
-        timezone: 'auto',
+        timezone:
+            new URLSearchParams(window.location.search).get('timezone') ??
+            'auto',
         forecast_days: '5',
     });
     const response = await fetch(
@@ -158,6 +163,10 @@ async function fetchForecast(location: WeatherLocation): Promise<Forecast> {
             precipitation: data.daily.precipitation_probability_max[index] ?? 0,
         })),
         updatedAt: new Date(),
+        timezone:
+            data.timezone ??
+            Intl.DateTimeFormat().resolvedOptions().timeZone ??
+            'UTC',
     };
 }
 
@@ -168,6 +177,7 @@ export default function WeatherDashboard() {
     const [city, setCity] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [screenshotMode, setScreenshotMode] = useState(false);
 
     useEffect(() => {
         setNow(new Date());
@@ -216,6 +226,35 @@ export default function WeatherDashboard() {
     }, [location, updateWeather]);
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const screenshot = params.get('screenshot') === '1';
+
+        if (screenshot) setScreenshotMode(true);
+
+        const latitude = params.get('latitude');
+        const longitude = params.get('longitude');
+
+        if (latitude !== null && longitude !== null) {
+            const parsedLatitude = Number(latitude);
+            const parsedLongitude = Number(longitude);
+
+            if (
+                Number.isFinite(parsedLatitude) &&
+                Number.isFinite(parsedLongitude)
+            ) {
+                void updateWeather({
+                    latitude: parsedLatitude,
+                    longitude: parsedLongitude,
+                    name:
+                        params.get('label') ??
+                        `${parsedLatitude.toFixed(4)}°, ${parsedLongitude.toFixed(4)}°`,
+                    country: '',
+                });
+
+                return;
+            }
+        }
+
         try {
             const saved = window.localStorage.getItem(savedLocationKey);
 
@@ -330,7 +369,13 @@ export default function WeatherDashboard() {
     return (
         <>
             <Head title="Weather &amp; Time" />
-            <main className="kindle-dashboard">
+            <main
+                className="kindle-dashboard"
+                data-screenshot-mode={screenshotMode ? 'true' : undefined}
+                data-screenshot-ready={
+                    screenshotMode && forecast ? 'true' : undefined
+                }
+            >
                 <header className="kindle-header">
                     <div className="kindle-brand">
                         <span className="kindle-mark" aria-hidden="true">
@@ -345,6 +390,7 @@ export default function WeatherDashboard() {
                                   month: 'long',
                                   day: 'numeric',
                                   year: 'numeric',
+                                  timeZone: forecast?.timezone,
                               }).format(now)
                             : ''}
                     </p>
@@ -361,6 +407,7 @@ export default function WeatherDashboard() {
                                   hourCycle: 'h23',
                                   hour: '2-digit',
                                   minute: '2-digit',
+                                  timeZone: forecast?.timezone,
                               }).format(now)
                             : '--:--'}
                     </time>
@@ -474,6 +521,7 @@ export default function WeatherDashboard() {
                                               hourCycle: 'h23',
                                               hour: '2-digit',
                                               minute: '2-digit',
+                                              timeZone: forecast.timezone,
                                           },
                                       ).format(forecast.updatedAt)}`}
                             </p>

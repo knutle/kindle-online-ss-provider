@@ -2,35 +2,37 @@
 
 namespace Tests\Feature;
 
+use App\Services\DashboardImageRenderer;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class DashboardImageTest extends TestCase
 {
-    public function test_it_renders_the_dashboard_as_a_kindle_resolution_png(): void
+    public function test_it_renders_the_dashboard_at_kindle_resolution_in_a_browser(): void
     {
-        Http::fake([
-            'api.open-meteo.com/*' => Http::response($this->forecast()),
-        ]);
+        $this->mock(DashboardImageRenderer::class)
+            ->shouldReceive('render')
+            ->once()
+            ->withArgs(function (string $url, int $width, int $height): bool {
+                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
 
-        $response = $this->get('/dashboard.png?latitude=59.91&longitude=10.75&label=Oslo');
+                return $width === 1236
+                    && $height === 1598
+                    && ($query['latitude'] ?? null) === '59.91'
+                    && ($query['longitude'] ?? null) === '10.75'
+                    && ($query['label'] ?? null) === 'Oslo'
+                    && ($query['screenshot'] ?? null) === '1';
+            })
+            ->andReturn('browser-rendered-png');
 
-        $response->assertOk()
+        $this->get('/dashboard.png?latitude=59.91&longitude=10.75&label=Oslo')
+            ->assertOk()
             ->assertHeader('Content-Type', 'image/png')
-            ->assertHeader('Content-Disposition', 'inline; filename="kindle-dashboard.png"');
-
-        $image = new \Imagick;
-        $image->readImageBlob($response->getContent());
-
-        $this->assertSame(1236, $image->getImageWidth());
-        $this->assertSame(1648, $image->getImageHeight());
-        $this->assertSame('PNG', $image->getImageFormat());
-        $this->assertGreaterThan(1, $image->getImageColors());
-
-        $image->clear();
+            ->assertHeader('Content-Disposition', 'inline; filename="kindle-dashboard.png"')
+            ->assertSee('browser-rendered-png', false);
     }
 
-    public function test_it_accepts_a_city_and_geocodes_it(): void
+    public function test_it_geocodes_a_city_before_rendering_the_dashboard(): void
     {
         Http::fake([
             'geocoding-api.open-meteo.com/*' => Http::response([
@@ -42,8 +44,19 @@ class DashboardImageTest extends TestCase
                     'country' => 'United Kingdom',
                 ]],
             ]),
-            'api.open-meteo.com/*' => Http::response($this->forecast()),
         ]);
+
+        $this->mock(DashboardImageRenderer::class)
+            ->shouldReceive('render')
+            ->once()
+            ->withArgs(function (string $url): bool {
+                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+                return ($query['latitude'] ?? null) === '51.5072'
+                    && ($query['longitude'] ?? null) === '-0.1276'
+                    && ($query['label'] ?? null) === 'London, England, United Kingdom';
+            })
+            ->andReturn('browser-rendered-png');
 
         $this->get('/dashboard.png?city=London')
             ->assertOk()
@@ -58,31 +71,5 @@ class DashboardImageTest extends TestCase
         $this->get('/dashboard.png')
             ->assertUnprocessable()
             ->assertSeeText('Use ?city=London or provide both latitude and longitude.');
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function forecast(): array
-    {
-        return [
-            'timezone' => 'Europe/Oslo',
-            'current' => [
-                'temperature_2m' => 8.5,
-                'apparent_temperature' => 6.1,
-                'relative_humidity_2m' => 67,
-                'wind_speed_10m' => 9.2,
-                'precipitation' => 0,
-                'weather_code' => 2,
-                'is_day' => 1,
-            ],
-            'daily' => [
-                'time' => ['2026-11-20', '2026-11-21', '2026-11-22', '2026-11-23', '2026-11-24'],
-                'weather_code' => [2, 61, 3, 0, 71],
-                'temperature_2m_max' => [10, 9, 8, 7, 5],
-                'temperature_2m_min' => [4, 3, 2, 1, -1],
-                'precipitation_probability_max' => [0, 80, 10, 0, 30],
-            ],
-        ];
     }
 }
