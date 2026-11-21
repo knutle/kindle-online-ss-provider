@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kindle-weather-dashboard",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-11-01",
+  "containers": [
+    {
+      "class_name": "LaravelContainer",
+      "image": "./Dockerfile",
+      "image_build_context": "../src",
+      "instance_type": "standard-2",
+      "max_instances": 2
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "class_name": "LaravelContainer", "name": "LARAVEL" }]
+  },
+  "migrations": [{ "new_sqlite_classes": ["LaravelContainer"], "tag": "v1" }],
+  "observability": { "enabled": true }
+}

@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'browsershot' => [
+        'no_sandbox' => env('BROWSERSHOT_NO_SANDBOX', false),
+    ],
+
 ];

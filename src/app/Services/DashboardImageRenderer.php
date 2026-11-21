@@ -11,7 +11,7 @@ class DashboardImageRenderer
     {
         set_time_limit(75);
 
-        return Browsershot::url($url)
+        $shot = Browsershot::url($url)
             ->setNodeModulePath(base_path('node_modules'))
             ->windowSize($width, $height)
             ->deviceScaleFactor(1)
@@ -21,7 +21,12 @@ class DashboardImageRenderer
                 50_000,
             )
             ->timeout(65)
-            ->select('.kindle-dashboard')
-            ->screenshot();
+            ->select('.kindle-dashboard');
+
+        if (config('services.browsershot.no_sandbox')) {
+            $shot->noSandbox();
+        }
+
+        return $shot->screenshot();
     }
 }
