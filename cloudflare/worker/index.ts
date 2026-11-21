@@ -13,6 +13,19 @@ export class LaravelContainer extends Container<Env> {
         super(ctx, env);
         this.envVars = { APP_KEY: env.APP_KEY };
     }
+
+    override onStart() {
+        console.log(JSON.stringify({ message: 'laravel container started' }));
+    }
+
+    override onStop(params: { exitCode: number; reason: string }) {
+        console.log(JSON.stringify({ message: 'laravel container stopped', ...params }));
+    }
+
+    override onError(error: unknown) {
+        console.error(JSON.stringify({ message: 'laravel container error', error: String(error) }));
+        throw error;
+    }
 }
 
 export default {

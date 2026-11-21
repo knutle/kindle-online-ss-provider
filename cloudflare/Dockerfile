@@ -49,6 +49,7 @@ ENV APP_ENV=production \
     CACHE_STORE=file \
     QUEUE_CONNECTION=sync \
     LOG_CHANNEL=stderr \
+    LOG_STDERR_FORMATTER=Monolog\\Formatter\\JsonFormatter \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
     BROWSERSHOT_NO_SANDBOX=true \
     SERVER_NAME=:8080

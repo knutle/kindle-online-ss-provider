@@ -16,5 +16,5 @@
     "bindings": [{ "class_name": "LaravelContainer", "name": "LARAVEL" }]
   },
   "migrations": [{ "new_sqlite_classes": ["LaravelContainer"], "tag": "v1" }],
-  "observability": { "enabled": true }
+  "observability": { "enabled": true, "logs": { "enabled": true, "invocation_logs": true } }
 }
