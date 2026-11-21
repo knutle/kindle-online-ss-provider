@@ -454,10 +454,11 @@
 .kindle-dashboard[data-screenshot-mode='true'] {
     --screenshot-current-details-scale: calc(var(--screenshot-scale) * 1.3);
     --screenshot-forecast-scale: calc(var(--screenshot-scale) * 1.755);
+    --screenshot-header-scale: calc(var(--screenshot-scale) * 1.35);
     --screenshot-scale: 1.3;
     height: 100svh;
     min-height: 100svh;
-    padding: 20px 0 30px;
+    padding: 10px 0 35px;
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-header {
@@ -480,20 +481,20 @@
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-brand {
-    font-size: calc(0.8rem * var(--screenshot-scale));
+    font-size: calc(0.8rem * var(--screenshot-header-scale));
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-mark {
-    width: calc(1.75rem * var(--screenshot-scale));
-    height: calc(1.75rem * var(--screenshot-scale));
-    font-size: calc(1rem * var(--screenshot-scale));
+    width: calc(1.75rem * var(--screenshot-header-scale));
+    height: calc(1.75rem * var(--screenshot-header-scale));
+    font-size: calc(1rem * var(--screenshot-header-scale));
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-date {
     font-size: clamp(
-        calc(0.82rem * var(--screenshot-scale)),
-        calc(1.7vw * var(--screenshot-scale)),
-        calc(1.15rem * var(--screenshot-scale))
+        calc(0.82rem * var(--screenshot-header-scale)),
+        calc(1.7vw * var(--screenshot-header-scale)),
+        calc(1.15rem * var(--screenshot-header-scale))
     );
 }
 
