@@ -5,7 +5,7 @@ Kindle-sized PNG image of the dashboard. The interactive dashboard lets you
 search for a city or use your device location, then shows current conditions
 and a five-day forecast. Weather data is provided by Open-Meteo.
 
-The Laravel application is in [`example-app/`](example-app/). Its
+The Laravel application is in [`src/`](src/). Its
 `/dashboard.png` endpoint renders the dashboard in a headless browser at
 1236 × 1601 pixels, suitable for displaying on a Kindle.
 
@@ -39,7 +39,7 @@ Prerequisites:
 From the repository root, set up and start the application:
 
 ```sh
-cd example-app
+cd src
 composer setup
 composer dev
 ```
@@ -62,4 +62,27 @@ and Vite Plus. Important runtime dependencies include:
 - **External service:** Open-Meteo Forecast and Geocoding APIs; no API key is
   configured by this project.
 
-The Composer and npm dependency manifests and lock files are in `example-app/`.
+The Composer and npm dependency manifests and lock files are in `src/`.
+
+## Deploying to Cloudflare
+
+The app needs PHP and headless Chrome, so it runs as a
+[Cloudflare Container](https://developers.cloudflare.com/containers/) behind a
+small Worker (`cloudflare/worker/index.ts`, configured in `cloudflare/wrangler.jsonc`).
+
+```sh
+cd cloudflare
+npm install
+npx wrangler secret put APP_KEY   # value from `php artisan key:generate --show`
+npx wrangler deploy               # builds cloudflare/Dockerfile and deploys
+```
+
+Notes:
+
+- The container uses cookie sessions, file cache, and a throwaway SQLite
+  database, so state is lost when the container sleeps. Use an external
+  database if you need persistent Fortify accounts.
+- `APP_URL` is `http://127.0.0.1:8080` inside the container because Browsershot
+  renders the dashboard by requesting the app's own URL.
+- `/dashboard.png` responses are served with `Cache-Control: max-age=600`.
+- To test the image locally: `docker build -t kindle -f cloudflare/Dockerfile src && docker run -p 8080:8080 -e APP_KEY=... kindle`.
