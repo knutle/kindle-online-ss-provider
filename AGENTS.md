@@ -14,7 +14,14 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 - Edit the JSX structure and the CSS together. Borders/dividers belong on the container that owns the visual row, not on a child (e.g. the divider under the forecast/quote row is on `.kindle-top-row`, not `.kindle-current`).
 - To make a column reach a divider, remove padding from the parent and put it on the children. Padding on the parent leaves a gap above a child's border.
 - Pick the section height from the tallest column and let others `align-items: stretch`. Avoid `align-self: flex-start` on columns that should span the row.
+- The PNG renderer captures `.kindle-dashboard` as an element. Keep screenshot-mode `height` and `min-height` aligned with the controller viewport; `min-height` alone can let content growth change the generated PNG dimensions. Update `DashboardImageTest` when changing the controller dimensions and verify a rendered PNG.
 - After editing JSX, run `npx tsc --noEmit` and filter for the file you touched. Many unrelated errors appear because Wayfinder route files (`@/routes`, `@/actions`) aren't generated in a clean checkout. Ignore those.
+
+## Test fixtures and container development
+
+- `src/tests/Fixtures/oslo-weather.json` is a raw five-day Open-Meteo response. Reuse it for deterministic weather mocks instead of depending on live API responses in tests.
+- Wrangler's local container uses `src/` as its image build context. Run `cd cloudflare && npm ci && npx wrangler dev --local --var APP_KEY:01234567890123456789012345678901`; Docker Desktop must be running. The example key is disposable and local-only; never use it for deployment or commit a real `APP_KEY`.
+- The first local container build pulls its base images and installs PHP/Node dependencies, so allow several minutes and wait for Wrangler's ready message before testing the local endpoint.
 
 ## Verifying rendering (required for visual changes)
 
