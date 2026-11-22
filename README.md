@@ -99,7 +99,10 @@ optionally `APP_KEY` and `CALENDAR_ICAL_URL`, which are uploaded as Worker
 secrets in the same deploy. Optionally set the repository variable `WORKER_URL`
 (e.g. `https://kindle-weather-dashboard.<subdomain>.workers.dev`) so the workflow
 warms the container via `/up` after deploying; each deploy replaces the container,
-so the first request otherwise pays the cold start.
+so the first request otherwise pays the cold start. Use the `workers.dev` URL
+rather than a custom domain: Cloudflare security rules on a custom domain can
+return 403 to GitHub runner IPs. The warm-up step is non-fatal, so a failure
+there does not fail the deploy.
 
 Notes:
 
