@@ -80,6 +80,7 @@ before(async () => {
     browser = await puppeteer.launch({
         executablePath: process.env.CHROME_PATH || undefined,
         headless: 'shell',
+        args: process.env.CI === 'true' ? ['--no-sandbox'] : [],
     });
 });
 
