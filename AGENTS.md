@@ -41,6 +41,14 @@ Pitfalls seen:
 - Put the fetch mock in a module imported first, written as plain TypeScript. An inline one-line mock had a paren error and caused a misleading "Failed to fetch" in the UI.
 - The tool sometimes reports the screenshot "does not exist" on first view; view it again.
 - Vite error overlays show up in the screenshot, so read it if the page looks wrong.
+- Outside screenshot mode (no `&screenshot=1`) the page is taller than 1000px. Capture the full height (e.g. `--window-size=1236,2000 --hide-scrollbars`) so the footer and search/location tools are visible; a short window crops the page.
+- `kill` needs numeric PIDs; list them with `ps aux | grep "[v]ite" | awk '{print $2}'` first (npm, sh and node processes all need stopping).
+- Verify both modes after a layout change: screenshot mode and normal mode.
+
+## Tests
+
+- Run `cd src && XDEBUG_MODE=off php artisan test --filter=Dashboard` (needs `composer install`, `.env` and `php artisan key:generate`). Redirect output through `grep -v Xdebug` or it floods.
+- `DashboardTest::test_authenticated_users_can_visit_the_dashboard` fails with "Vite manifest not found" in a clean checkout (no `public/build`); this is pre-existing, not caused by CSS changes.
 
 ## Workflow conventions
 
@@ -55,3 +63,5 @@ Pitfalls seen:
 
 1. Quote of the day spans the full row height (divider to divider) next to the forecast heading; rows from humidity/wind/precipitation down are 100% width.
 2. No gap between the quote's vertical divider and the horizontal divider above it.
+3. Screenshot-mode rows have 35px horizontal padding (was 20px). The forecast/quote row has that padding only at its outer edges, with a 15px gap on each side of the divider and no flex gap.
+4. Quote of the day is centred horizontally (`align-items: center; text-align: center`), in both screenshot and normal mode. The row's divider/gap rules in `.kindle-top-row`, `.kindle-weather-summary` and `.kindle-quote` apply in both modes; screenshot mode only overrides padding.
