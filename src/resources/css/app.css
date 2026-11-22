@@ -236,6 +236,9 @@
 }
 
 .kindle-events ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+    gap: 0.5rem 1rem;
     margin: 0.6rem 0 0;
     padding: 0;
     list-style: none;
@@ -243,6 +246,7 @@
 
 .kindle-events li {
     display: flex;
+    min-width: 0;
     flex-direction: column;
     border-top: 1px solid #aaa;
     padding: 0.45rem 0;
@@ -599,7 +603,6 @@
     );
 }
 
-/* Five event rows are taller than the clock alone; trim the padding so the footer still fits. */
 .kindle-dashboard[data-screenshot-mode='true']
     .kindle-clock:has(.kindle-events) {
     padding-block: 1.5rem;
@@ -790,6 +793,14 @@
 @media (max-width: 600px) {
     .kindle-header {
         align-items: flex-start;
+    }
+
+    .kindle-clock:has(.kindle-events) {
+        flex-direction: column;
+    }
+
+    .kindle-events {
+        width: 100%;
     }
 
     .kindle-current {
