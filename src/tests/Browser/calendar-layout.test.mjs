@@ -137,7 +137,7 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                 return { left: rect.left, right: rect.right, top: rect.top };
             });
             const title = document.querySelector('.kindle-next-event-title');
-            const listTitle = document.querySelector('.kindle-event-title');
+            const listTitle = document.querySelector('.kindle-event-text');
             return {
                 dashboard: {
                     right: dashboard.right,
@@ -157,7 +157,7 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                 listTitleTruncated:
                     listTitle &&
                     listTitle.scrollHeight > listTitle.clientHeight &&
-                    getComputedStyle(listTitle).webkitLineClamp === '2',
+                    getComputedStyle(listTitle).webkitLineClamp === '4',
                 pageWidth: document.documentElement.scrollWidth,
             };
         });
@@ -188,11 +188,19 @@ async function checkLayout({ width, height, screenshot, count, name }) {
         if (count > 2) {
             assert.equal(layout.events[0].top, layout.events[1].top);
             assert.ok(layout.events[1].left > layout.events[0].right);
+            if (width > 600) {
+                assert.ok(
+                    layout.events.every(
+                        (event) => event.top === layout.events[0].top,
+                    ),
+                    'upcoming events must share one row',
+                );
+            }
         }
         if (count > 1) {
             assert.ok(
                 layout.listTitleTruncated,
-                'long upcoming event titles must wrap and clamp to two lines',
+                'long upcoming event titles must wrap and clamp to four lines',
             );
         }
         for (const event of layout.events) {

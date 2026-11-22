@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 import {
+    CalendarDays,
     Cloud,
     CloudDrizzle,
     CloudFog,
@@ -238,10 +239,46 @@ function formatEventTime(event: CalendarEvent, timeZone?: string): string {
     }).format(start);
 }
 
+function formatEventDay(
+    event: CalendarEvent,
+    now: Date | null,
+    timeZone?: string,
+): string {
+    const eventDay = event.allDay
+        ? new Date(`${event.start.slice(0, 10)}T00:00:00Z`)
+        : new Date(event.start);
+    const eventZone = event.allDay ? 'UTC' : timeZone;
+    const dayKey = (date: Date, zone?: string) =>
+        new Intl.DateTimeFormat('en-CA', { timeZone: zone }).format(date);
+
+    if (now) {
+        const today = dayKey(now, timeZone);
+        const tomorrow = new Date(`${today}T00:00:00Z`);
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+        const key = dayKey(eventDay, eventZone);
+
+        if (key === today) {
+            return 'Today';
+        }
+
+        if (key === dayKey(tomorrow, 'UTC')) {
+            return 'Tomorrow';
+        }
+    }
+
+    return new Intl.DateTimeFormat(undefined, {
+        day: 'numeric',
+        month: 'short',
+        timeZone: eventZone,
+    }).format(eventDay);
+}
+
 export default function WeatherDashboard({
     events = [],
+    calendar = null,
 }: {
     events?: CalendarEvent[];
+    calendar?: { name: string | null } | null;
 }) {
     const [nextEvent, ...laterEvents] = events;
     const [now, setNow] = useState<Date | null>(null);
@@ -470,32 +507,53 @@ export default function WeatherDashboard({
                 </header>
 
                 <section
-                    className={`kindle-clock${nextEvent ? ' kindle-clock-event' : ''}`}
+                    className={`kindle-clock${nextEvent || calendar ? ' kindle-clock-event' : ''}`}
                     aria-label="Current date and time"
                 >
                     <div className="kindle-clock-main">
-                        {nextEvent ? (
+                        {nextEvent || calendar ? (
                             <>
-                                <p className="kindle-clock-label">NEXT EVENT</p>
-                                <time dateTime={nextEvent.start}>
-                                    {nextEvent.allDay
-                                        ? 'All day'
-                                        : new Intl.DateTimeFormat(undefined, {
-                                              hourCycle: 'h23',
-                                              hour: '2-digit',
-                                              minute: '2-digit',
-                                              timeZone: forecast?.timezone,
-                                          }).format(new Date(nextEvent.start))}
-                                </time>
-                                <p className="kindle-next-event-title">
-                                    {nextEvent.title}
-                                </p>
-                                <p className="kindle-clock-label">
-                                    {formatEventTime(
-                                        nextEvent,
-                                        forecast?.timezone,
-                                    ).toUpperCase()}
-                                </p>
+                                <div className="kindle-next-event">
+                                    <p className="kindle-clock-label">
+                                        NEXT EVENT
+                                    </p>
+                                    {nextEvent ? (
+                                        <>
+                                            <time
+                                                className="kindle-event-date"
+                                                dateTime={nextEvent.start}
+                                            >
+                                                {formatEventDay(
+                                                    nextEvent,
+                                                    now,
+                                                    forecast?.timezone,
+                                                )}
+                                            </time>
+                                            <p className="kindle-next-event-title">
+                                                {nextEvent.title}
+                                            </p>
+                                            <p className="kindle-clock-label">
+                                                {(nextEvent.allDay
+                                                    ? `${new Intl.DateTimeFormat(undefined, { weekday: 'short', timeZone: 'UTC' }).format(new Date(`${nextEvent.start.slice(0, 10)}T00:00:00Z`))} all day`
+                                                    : formatEventTime(
+                                                          nextEvent,
+                                                          forecast?.timezone,
+                                                      )
+                                                ).toUpperCase()}
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <p className="kindle-no-events">
+                                            No upcoming events found.
+                                        </p>
+                                    )}
+                                </div>
+                                {calendar?.name && (
+                                    <p className="kindle-calendar-name">
+                                        <CalendarDays aria-hidden="true" />
+                                        <span>{calendar.name}</span>
+                                    </p>
+                                )}
                             </>
                         ) : (
                             <>
@@ -515,19 +573,28 @@ export default function WeatherDashboard({
                     </div>
                     {laterEvents.length > 0 && (
                         <div className="kindle-events">
-                            <p className="kindle-clock-label">UPCOMING</p>
                             <ul>
-                                {laterEvents.map((event) => (
+                                {laterEvents.slice(0, 4).map((event) => (
                                     <li key={`${event.start}-${event.title}`}>
-                                        <span className="kindle-event-when">
-                                            {formatEventTime(
-                                                event,
-                                                forecast?.timezone,
-                                            )}
-                                        </span>
-                                        <span className="kindle-event-title">
-                                            {event.title}
-                                        </span>
+                                        <div className="kindle-event-card">
+                                            <span className="kindle-event-when">
+                                                {formatEventTime(
+                                                    event,
+                                                    forecast?.timezone,
+                                                )}
+                                            </span>
+                                            <span className="kindle-event-title">
+                                                <span className="kindle-event-text">
+                                                    {event.title}
+                                                </span>
+                                            </span>
+                                        </div>
+                                        {calendar?.name && (
+                                            <p className="kindle-calendar-name">
+                                                <CalendarDays aria-hidden="true" />
+                                                <span>{calendar.name}</span>
+                                            </p>
+                                        )}
                                     </li>
                                 ))}
                             </ul>

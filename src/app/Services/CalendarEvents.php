@@ -23,10 +23,18 @@ class CalendarEvents
      */
     public function upcoming(?string $url, ?DateTimeImmutable $now = null, ?int $limit = null): array
     {
+        return $this->overview($url, $now, $limit)['events'];
+    }
+
+    /**
+     * @return array{configured: bool, name: string|null, events: list<array{title: string, start: string, end: string|null, allDay: bool}>}
+     */
+    public function overview(?string $url, ?DateTimeImmutable $now = null, ?int $limit = null): array
+    {
         $url = filled($url) ? preg_replace('#^webcals?://#i', 'https://', trim($url)) : null;
 
         if (! $url || ! preg_match('#^https?://#i', $url)) {
-            return [];
+            return ['configured' => false, 'name' => null, 'events' => []];
         }
 
         $now ??= new DateTimeImmutable;
@@ -38,12 +46,21 @@ class CalendarEvents
                 (int) config('services.calendar.cache_seconds', 300),
                 fn () => Http::timeout(10)->get($url)->throw()->body(),
             );
+            $calendar = Reader::read($body, Reader::OPTION_FORGIVING);
 
-            return $this->parse($body, $now, $limit);
+            if (! $calendar instanceof VCalendar) {
+                return ['configured' => true, 'name' => null, 'events' => []];
+            }
+
+            return [
+                'configured' => true,
+                'name' => $this->name($calendar),
+                'events' => $this->events($calendar, $now, $limit),
+            ];
         } catch (Throwable $e) {
             report($e);
 
-            return [];
+            return ['configured' => true, 'name' => null, 'events' => []];
         }
     }
 
@@ -54,10 +71,25 @@ class CalendarEvents
     {
         $calendar = Reader::read($ical, Reader::OPTION_FORGIVING);
 
-        if (! $calendar instanceof VCalendar) {
-            return [];
-        }
+        return $calendar instanceof VCalendar ? $this->events($calendar, $now, $limit) : [];
+    }
 
+    /**
+     * @param  VCalendar<int, Node>  $calendar
+     */
+    private function name(VCalendar $calendar): ?string
+    {
+        $name = trim((string) ($calendar->select('X-WR-CALNAME')[0] ?? ''));
+
+        return $name === '' ? null : $name;
+    }
+
+    /**
+     * @param  VCalendar<int, Node>  $calendar
+     * @return list<array{title: string, start: string, end: string|null, allDay: bool}>
+     */
+    private function events(VCalendar $calendar, DateTimeImmutable $now, int $limit): array
+    {
         $horizon = $now->modify('+60 days');
         $events = [];
 

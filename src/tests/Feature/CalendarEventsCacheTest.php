@@ -45,6 +45,20 @@ class CalendarEventsCacheTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_overview_reports_calendar_name_and_configured_state(): void
+    {
+        Cache::flush();
+        Http::fake(['https://d.example.com/*' => Http::response(str_replace("VERSION:2.0\r\n", "VERSION:2.0\r\nX-WR-CALNAME:Family\r\n", $this->ics('Delta')))]);
+        $service = new CalendarEvents;
+
+        $overview = $service->overview('https://d.example.com/x.ics', new DateTimeImmutable('2026-11-22T12:00:00Z'));
+
+        $this->assertTrue($overview['configured']);
+        $this->assertSame('Family', $overview['name']);
+        $this->assertSame(['Delta'], array_column($overview['events'], 'title'));
+        $this->assertFalse($service->overview(null)['configured']);
+    }
+
     public function test_webcal_urls_are_fetched_over_https(): void
     {
         Cache::flush();

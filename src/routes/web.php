@@ -6,9 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', fn (Request $request, CalendarEvents $calendar) => Inertia::render('weather-dashboard', [
-    'events' => $calendar->upcoming($request->string('calendar')->toString()),
-]))->name('home');
+Route::get('/', function (Request $request, CalendarEvents $calendar) {
+    $overview = $calendar->overview($request->string('calendar')->toString());
+
+    return Inertia::render('weather-dashboard', [
+        'events' => $overview['events'],
+        'calendar' => $overview['configured'] ? ['name' => $overview['name']] : null,
+    ]);
+})->name('home');
 Route::get('/dashboard.png', DashboardImageController::class)->name('dashboard.image');
 
 Route::middleware(['auth', 'verified'])->group(function () {
