@@ -92,8 +92,11 @@ npx wrangler deploy               # builds cloudflare/Dockerfile and deploys
 `.github/workflows/deploy-cloudflare.yml` deploys on pushes to `main` (or
 manually via *Run workflow*). Add these repository secrets: `CLOUDFLARE_API_TOKEN`
 (with Workers and Containers edit permissions), `CLOUDFLARE_ACCOUNT_ID`, and
-optionally `APP_KEY` and `CALENDAR_ICAL_URL`, which are synced as Worker
-secrets.
+optionally `APP_KEY` and `CALENDAR_ICAL_URL`, which are uploaded as Worker
+secrets in the same deploy. Optionally set the repository variable `WORKER_URL`
+(e.g. `https://kindle-weather-dashboard.<subdomain>.workers.dev`) so the workflow
+warms the container via `/up` after deploying; each deploy replaces the container,
+so the first request otherwise pays the cold start.
 
 Notes:
 

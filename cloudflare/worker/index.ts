@@ -18,6 +18,18 @@ export class LaravelContainer extends Container<Env> {
         };
     }
 
+    // Cold starts after a deploy (image pull, cache warm-up) exceed the library's 8s/20s defaults.
+    override async fetch(request: Request): Promise<Response> {
+        if (!this.ctx.container?.running) {
+            await this.startAndWaitForPorts({
+                ports: this.defaultPort,
+                cancellationOptions: { instanceGetTimeoutMS: 60_000, portReadyTimeoutMS: 120_000 },
+            });
+        }
+
+        return super.fetch(request);
+    }
+
     override onStart() {
         console.log(JSON.stringify({ message: 'laravel container started' }));
     }
