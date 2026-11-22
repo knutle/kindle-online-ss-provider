@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Sabre\VObject\Component\VCalendar;
 use Sabre\VObject\Component\VEvent;
+use Sabre\VObject\Node;
 use Sabre\VObject\Property\ICalendar\DateTime as DateTimeProperty;
 use Sabre\VObject\Reader;
 use Sabre\VObject\Recur\EventIterator;
@@ -103,6 +104,8 @@ class CalendarEvents
     }
 
     /**
+     * @param  VCalendar<int, Node>  $calendar
+     * @param  VEvent<int, Node>  $vevent
      * @return list<DateTimeImmutable>
      */
     private function occurrences(VCalendar $calendar, VEvent $vevent, DateTimeImmutable $now, DateTimeImmutable $horizon): array
