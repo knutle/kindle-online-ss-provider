@@ -247,22 +247,34 @@
 }
 
 .kindle-weather {
-    width: 50%;
-    flex: 0 0 50%;
+    width: 100%;
+    flex: 1 1 100%;
     min-width: 0;
     margin: 0;
-    padding: clamp(1.5rem, 4vw, 3rem) 0 1rem;
+    padding: 0 0 1rem;
+}
+
+.kindle-top-row {
+    display: flex;
+    align-items: stretch;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    border-bottom: 1px solid #aaa;
+}
+
+.kindle-weather-summary {
+    min-width: 0;
+    padding-top: clamp(1.5rem, 4vw, 3rem);
+    flex: 0 0 50%;
 }
 
 .kindle-quote {
     display: flex;
-    align-self: flex-start;
     min-width: 0;
     flex: 1 1 50%;
     flex-direction: column;
     justify-content: center;
     border-left: 1px solid #aaa;
-    padding: clamp(1.5rem, 4vw, 3rem) 0 1rem clamp(1rem, 3vw, 2.5rem);
+    padding: 0 0 0 clamp(1rem, 3vw, 2.5rem);
 }
 
 .kindle-quote figure {
@@ -320,7 +332,6 @@
     display: flex;
     align-items: center;
     gap: clamp(1rem, 4vw, 3.5rem);
-    border-bottom: 1px solid #aaa;
     padding: clamp(1.5rem, 4vw, 3.25rem) 0;
 }
 
