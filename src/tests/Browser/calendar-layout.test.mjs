@@ -156,8 +156,8 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                     getComputedStyle(title).textOverflow === 'ellipsis',
                 listTitleTruncated:
                     listTitle &&
-                    listTitle.scrollWidth > listTitle.clientWidth &&
-                    getComputedStyle(listTitle).textOverflow === 'ellipsis',
+                    listTitle.scrollHeight > listTitle.clientHeight &&
+                    getComputedStyle(listTitle).webkitLineClamp === '2',
                 pageWidth: document.documentElement.scrollWidth,
             };
         });
@@ -192,7 +192,7 @@ async function checkLayout({ width, height, screenshot, count, name }) {
         if (count > 1) {
             assert.ok(
                 layout.listTitleTruncated,
-                'long upcoming event titles must be truncated',
+                'long upcoming event titles must wrap and clamp to two lines',
             );
         }
         for (const event of layout.events) {
