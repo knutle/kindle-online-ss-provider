@@ -226,8 +226,14 @@
 
 .kindle-clock-main {
     display: flex;
+    min-width: 0;
+    max-width: 100%;
     flex-direction: column;
     align-items: center;
+}
+
+.kindle-clock:has(.kindle-events) .kindle-clock-main {
+    width: 40%;
 }
 
 .kindle-next-event-title {
@@ -807,6 +813,10 @@
 
     .kindle-clock:has(.kindle-events) {
         flex-direction: column;
+    }
+
+    .kindle-clock:has(.kindle-events) .kindle-clock-main {
+        width: 100%;
     }
 
     .kindle-events {

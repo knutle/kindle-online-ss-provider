@@ -49,7 +49,7 @@ before(async () => {
                             import Dashboard from '/resources/js/pages/weather-dashboard.tsx';
                             const count = Number(new URLSearchParams(location.search).get('events'));
                             const events = Array.from({ length: count }, (_, i) => ({
-                                title: i === 0 ? 'Calendar event with a very long title that should be truncated' : 'Calendar event ' + (i + 1),
+                                title: i < 2 ? 'Calendar event with a very long title that should be truncated '.repeat(3).trim() : 'Calendar event ' + (i + 1),
                                 start: '2026-11-25T' + String(10 + i).padStart(2, '0') + ':00:00Z',
                                 end: null,
                                 allDay: false,
@@ -137,6 +137,7 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                 return { left: rect.left, right: rect.right, top: rect.top };
             });
             const title = document.querySelector('.kindle-next-event-title');
+            const listTitle = document.querySelector('.kindle-event-title');
             return {
                 dashboard: {
                     right: dashboard.right,
@@ -153,18 +154,27 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                     title &&
                     title.scrollWidth > title.clientWidth &&
                     getComputedStyle(title).textOverflow === 'ellipsis',
+                listTitleTruncated:
+                    listTitle &&
+                    listTitle.scrollWidth > listTitle.clientWidth &&
+                    getComputedStyle(listTitle).textOverflow === 'ellipsis',
                 pageWidth: document.documentElement.scrollWidth,
             };
         });
+        if (process.env.CALENDAR_LAYOUT_SCREENSHOT_DIR) {
+            await page.screenshot({
+                path: `${process.env.CALENDAR_LAYOUT_SCREENSHOT_DIR}/${name}.png`,
+                fullPage: !screenshot,
+            });
+        }
         assert.equal(layout.events.length, Math.max(0, count - 1));
-        assert.equal(
-            layout.clockLabel,
-            count ? 'NEXT EVENT' : 'LOCAL TIME',
-        );
+        assert.equal(layout.clockLabel, count ? 'NEXT EVENT' : 'LOCAL TIME');
         if (count) {
             assert.equal(
                 layout.nextEvent,
-                'Calendar event with a very long title that should be truncated',
+                'Calendar event with a very long title that should be truncated '
+                    .repeat(3)
+                    .trim(),
             );
             assert.ok(
                 layout.titleTruncated,
@@ -179,6 +189,12 @@ async function checkLayout({ width, height, screenshot, count, name }) {
             assert.equal(layout.events[0].top, layout.events[1].top);
             assert.ok(layout.events[1].left > layout.events[0].right);
         }
+        if (count > 1) {
+            assert.ok(
+                layout.listTitleTruncated,
+                'long upcoming event titles must be truncated',
+            );
+        }
         for (const event of layout.events) {
             assert.ok(
                 event.left >= layout.list.left &&
@@ -191,12 +207,6 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                 layout.footerBottom <= layout.dashboard.bottom,
                 'footer must fit in PNG',
             );
-        }
-        if (process.env.CALENDAR_LAYOUT_SCREENSHOT_DIR) {
-            await page.screenshot({
-                path: `${process.env.CALENDAR_LAYOUT_SCREENSHOT_DIR}/${name}.png`,
-                fullPage: !screenshot,
-            });
         }
     } finally {
         await page.close();
