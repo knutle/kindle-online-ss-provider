@@ -49,6 +49,7 @@ type CalendarEvent = {
     start: string;
     end: string | null;
     allDay: boolean;
+    calendarName: string | null;
 };
 
 type WeatherResponse = {
@@ -281,6 +282,9 @@ export default function WeatherDashboard({
     calendar?: { name: string | null } | null;
 }) {
     const [nextEvent, ...laterEvents] = events;
+    const nextCalendarName = nextEvent
+        ? nextEvent.calendarName
+        : calendar?.name;
     const [now, setNow] = useState<Date | null>(null);
     const [location, setLocation] = useState<WeatherLocation | null>(null);
     const [forecast, setForecast] = useState<Forecast | null>(null);
@@ -548,10 +552,10 @@ export default function WeatherDashboard({
                                         </p>
                                     )}
                                 </div>
-                                {calendar?.name && (
+                                {nextCalendarName && (
                                     <p className="kindle-calendar-name">
                                         <CalendarDays aria-hidden="true" />
-                                        <span>{calendar.name}</span>
+                                        <span>{nextCalendarName}</span>
                                     </p>
                                 )}
                             </>
@@ -575,7 +579,9 @@ export default function WeatherDashboard({
                         <div className="kindle-events">
                             <ul>
                                 {laterEvents.slice(0, 4).map((event) => (
-                                    <li key={`${event.start}-${event.title}`}>
+                                    <li
+                                        key={`${event.start}-${event.title}-${event.calendarName}`}
+                                    >
                                         <div className="kindle-event-card">
                                             <span className="kindle-event-when">
                                                 {formatEventTime(
@@ -589,10 +595,12 @@ export default function WeatherDashboard({
                                                 </span>
                                             </span>
                                         </div>
-                                        {calendar?.name && (
+                                        {event.calendarName && (
                                             <p className="kindle-calendar-name">
                                                 <CalendarDays aria-hidden="true" />
-                                                <span>{calendar.name}</span>
+                                                <span>
+                                                    {event.calendarName}
+                                                </span>
                                             </p>
                                         )}
                                     </li>

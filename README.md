@@ -58,13 +58,16 @@ Set `CHROME_PATH` to use an existing Chrome installation instead.
 ## Calendar events
 
 Add `calendar=<url-encoded iCal URL>` to the `/dashboard.png` query string (an
-`http(s)://` or `webcal://` `.ics` feed) to show upcoming events, including
-recurring ones up to 60 days ahead. The next event replaces the local time
-and is shown as a calendar-style card (a large "Today", "Tomorrow" or date, with
-the time below). Up to four more events appear beside it as smaller cards in one
-row. If the feed has a name (`X-WR-CALNAME`), it is shown beneath each card. If
-the feed has no upcoming events or cannot be loaded, the card says so; without a
-`calendar` parameter the local time is shown.
+`http(s)://` or `webcal://` `.ics` feed) to show upcoming events. Multiple feeds
+can be supplied with repeated `calendar[]` parameters, for example
+`calendar[]=<first URL>&calendar[]=<second URL>`. Events from all feeds are
+merged chronologically, including recurring ones up to 60 days ahead. The next
+event replaces the local time and is shown as a calendar-style card (a large
+"Today", "Tomorrow" or date, with the time below). Up to four more events appear
+beside it as smaller cards in one row. If a feed has a name (`X-WR-CALNAME`), it
+is shown beneath each of that feed's cards. If the feeds have no upcoming events
+or cannot be loaded, the card says so; without a `calendar` parameter the local
+time is shown.
 Optional `src/.env` settings:
 `CALENDAR_EVENT_LIMIT` (default `5`) and `CALENDAR_CACHE_SECONDS` (default
 `300`). The feed is fetched server-side. The URL is part of the request URL, so treat

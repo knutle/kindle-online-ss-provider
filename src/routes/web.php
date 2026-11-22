@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function (Request $request, CalendarEvents $calendar) {
-    $overview = $calendar->overview($request->string('calendar')->toString());
+    $calendarInput = $request->input('calendar');
+    $overview = $calendar->overview(
+        is_string($calendarInput) || is_array($calendarInput) ? $calendarInput : null,
+    );
 
     return Inertia::render('weather-dashboard', [
         'events' => $overview['events'],
