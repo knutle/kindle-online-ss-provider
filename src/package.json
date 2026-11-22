@@ -9,6 +9,7 @@
         "dev": "vp dev",
         "check": "vp check",
         "check:fix": "vp check --fix",
+        "test:calendar-layout": "node --test tests/Browser/calendar-layout.test.mjs",
         "types:check": "tsc --noEmit"
     },
     "dependencies": {

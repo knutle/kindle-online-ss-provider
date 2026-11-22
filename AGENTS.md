@@ -33,9 +33,10 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 
 - The iCal URL comes from the `calendar` query param on `/dashboard.png` (validated, forwarded to `/`); `App\Services\CalendarEvents::upcoming($url)` fetches, caches and parses it with `sabre/vobject` (optional env `CALENDAR_EVENT_LIMIT`, `CALENDAR_CACHE_SECONDS`) and expands RRULEs. The `/` route passes `events` to the page as an Inertia prop, so the URL never reaches the browser JS.
 - The container only gets env vars the Worker passes in `cloudflare/worker/index.ts` (`envVars`). A new runtime env var needs: `Env` field + `envVars` entry there, a secret sync step in `.github/workflows/deploy-cloudflare.yml`, and a README mention (setup + Cloudflare sections). (No calendar env var exists any more.)
-- Five event rows overflow the 1601px PNG (footer clipped); screenshot mode trims `.kindle-clock:has(.kindle-events)` padding. Recheck the footer after changing event/clock sizing.
+- The next event replaces the local time in `.kindle-clock-main`; remaining events use a wrapping grid beside it (below it on narrow screens). Screenshot mode trims `.kindle-clock-event` padding. Recheck the footer after changing event/clock sizing.
 - To render `/dashboard.png` offline: `PUPPETEER_EXECUTABLE_PATH` pointing at a wrapper script around system Chrome (`--host-resolver-rules="MAP api.open-meteo.com 127.0.0.1:8443" --ignore-certificate-errors`), a local HTTPS mock serving `oslo-weather.json`, and `PHP_CLI_SERVER_WORKERS=4 SESSION_DRIVER=file CACHE_STORE=file BROWSERSHOT_NO_SANDBOX=true php artisan serve` (after `npm ci && npm run build`).
-- Events sit in `.kindle-clock` beside `.kindle-clock-main` (the time) in `.kindle-events`, with no vertical divider.
+- `CalendarEvents::overview()` returns `configured`, `name` and `events`; the `/` route passes `events` plus a `calendar` prop (`null` without a URL, else `{name}`). `upcoming()` wraps it.
+- Remaining events sit in `.kindle-clock` beside `.kindle-clock-main` in `.kindle-events`, with no vertical divider. Constrain the featured column when changing its layout so long titles cannot push the list offscreen.
 - sabre `VEvent` has no typed properties, so PHPStan rejects `$vevent->DTSTART`. Use `$vevent->select('DTSTART')[0]` with an `instanceof Property\ICalendar\DateTime` check.
 - sabre/vobject 5 components are iterable, so PHPStan wants generics on param docs (`@param VCalendar<int, Node> $calendar`).
 - Use `composer require --no-scripts -W` for upgrades; `--dev` also moves a package into `require-dev`, so check `composer.json`.
@@ -71,6 +72,8 @@ Pitfalls seen:
 - Run `cd src && XDEBUG_MODE=off php artisan test --filter=Dashboard` (needs `composer install`, `.env` and `php artisan key:generate`). Redirect output through `grep -v Xdebug` or it floods.
 - `tests/TestCase.php` disables Vite for feature tests, so they do not require a built frontend manifest.
 - Run `npm run check` to check formatting and lint; use `npx vp fmt <paths>` to format affected files.
+- As root, run it as `CI=true CHROME_PATH=/usr/bin/google-chrome npm run test:calendar-layout` (needs `npm ci` first; `CALENDAR_LAYOUT_SCREENSHOT_DIR=/tmp` saves the renders to view).
+- Run `cd src && npm run test:calendar-layout` for browser-based calendar layout checks. The test uses Puppeteer's headless shell (`npm run browser:install`); set `CHROME_PATH` to an existing Chrome executable if needed. CI disables Chrome's sandbox because GitHub's Ubuntu runner does not allow it.
 
 ## Workflow conventions
 
@@ -91,3 +94,6 @@ Pitfalls seen:
 4. No vertical divider between the clock and the calendar events.
 5. Screenshot-mode rows have 35px horizontal padding (was 20px). The forecast/quote row has that padding only at its outer edges, with a 15px gap on each side of the divider and no flex gap.
 6. Quote of the day is centred horizontally (`align-items: center; text-align: center`), in both screenshot and normal mode. The row's divider/gap rules in `.kindle-top-row`, `.kindle-weather-summary` and `.kindle-quote` apply in both modes; screenshot mode only overrides padding.
+7. On ≤600px `.kindle-top-row` stacks the forecast above the quote with a horizontal divider.
+8. The next event is a calendar-page card (`.kindle-next-event`: 3px border, dark header band, large Today/Tomorrow/date in `time.kindle-event-date`, small weekday+time label). At most four later events are smaller cards (`.kindle-event-card`) in a fixed 4-column grid (2 on ≤600px) that stretches to the card height; no UPCOMING header. Titles clamp to four lines in `.kindle-event-text`.
+9. With a calendar URL but no events, the next-event card shows "No upcoming events found."; without a URL the local time shows. The calendar name (`X-WR-CALNAME`) renders with a `CalendarDays` icon under the next-event card and each upcoming card.

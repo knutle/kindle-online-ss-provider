@@ -226,40 +226,151 @@
 
 .kindle-clock-main {
     display: flex;
+    min-width: 0;
+    max-width: 100%;
     flex-direction: column;
     align-items: center;
 }
 
+.kindle-clock:has(.kindle-events) .kindle-clock-main {
+    width: 40%;
+}
+
+.kindle-next-event {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch;
+    overflow: hidden;
+    border: 3px solid var(--ink);
+    border-radius: 0.9rem;
+    padding: 0 0.75rem 0.4rem;
+}
+
+.kindle-no-events {
+    margin: 0.8rem 0 0.4rem;
+    max-width: 18rem;
+    font-size: 1.3rem;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.kindle-calendar-name {
+    display: flex;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.5rem 0 0;
+    color: var(--ink-soft);
+    font-family: Arial, sans-serif;
+    font-size: 0.95rem;
+}
+
+.kindle-calendar-name svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+}
+
+.kindle-calendar-name span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.kindle-next-event > .kindle-clock-label:first-child {
+    align-self: stretch;
+    margin-bottom: 0.2rem;
+    background: var(--ink);
+    color: #fff;
+    margin-inline: -0.75rem;
+    padding: 0.4rem 0;
+    text-align: center;
+}
+
+.kindle-next-event-title {
+    max-width: 100%;
+    margin: 0 0 0.4rem;
+    overflow: hidden;
+    font-size: 1.6rem;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.kindle-clock-event {
+    align-items: stretch;
+}
+
+.kindle-clock-event .kindle-clock-main {
+    justify-content: center;
+}
+
 .kindle-events {
+    display: flex;
     min-width: 0;
     flex: 1;
+    flex-direction: column;
 }
 
 .kindle-events ul {
-    margin: 0.6rem 0 0;
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
 
 .kindle-events li {
     display: flex;
+    min-width: 0;
     flex-direction: column;
-    border-top: 1px solid #aaa;
-    padding: 0.45rem 0;
-    font-size: 1.05rem;
+    align-items: center;
+}
+
+.kindle-event-card {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 0.6rem;
+    font-size: 1.7rem;
 }
 
 .kindle-event-when {
+    background: var(--ink);
+    color: #fff;
+    padding: 0.2rem 0.5rem;
     font-family: Arial, sans-serif;
-    font-size: 0.75rem;
+    font-size: 1.2rem;
     font-weight: 700;
     letter-spacing: 0.08em;
+    text-align: center;
 }
 
 .kindle-event-title {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.5rem 0.4rem;
+    text-align: center;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+}
+
+.kindle-event-text {
+    display: -webkit-box;
+    min-width: 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
 }
 
 .kindle-clock-label,
@@ -276,6 +387,13 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.07em;
     line-height: 1.04;
+}
+
+.kindle-clock time.kindle-event-date {
+    max-width: 100%;
+    font-size: clamp(2.5rem, 7.5vw, 4.5rem);
+    letter-spacing: -0.04em;
+    white-space: nowrap;
 }
 
 .kindle-main-row {
@@ -599,10 +717,9 @@
     );
 }
 
-/* Five event rows are taller than the clock alone; trim the padding so the footer still fits. */
-.kindle-dashboard[data-screenshot-mode='true']
-    .kindle-clock:has(.kindle-events) {
-    padding-block: 1.5rem;
+/* The next event plus its list is taller than the clock alone; shrink it so the footer still fits. */
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-clock-event {
+    padding-block: 1rem;
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-clock-label,
@@ -618,6 +735,16 @@
     );
 }
 
+.kindle-dashboard[data-screenshot-mode='true']
+    .kindle-clock
+    time.kindle-event-date {
+    font-size: clamp(
+        calc(2.5rem * var(--screenshot-scale)),
+        calc(7.5vw * var(--screenshot-scale)),
+        calc(4.5rem * var(--screenshot-scale))
+    );
+}
+
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-section-heading h1 {
     font-size: clamp(
         calc(1.35rem * var(--screenshot-scale)),
@@ -630,12 +757,12 @@
     width: clamp(
         calc(3.75rem * var(--screenshot-scale)),
         calc(10vw * var(--screenshot-scale)),
-        calc(7rem * var(--screenshot-scale))
+        calc(4.5rem * var(--screenshot-scale))
     );
     height: clamp(
         calc(3.75rem * var(--screenshot-scale)),
         calc(10vw * var(--screenshot-scale)),
-        calc(7rem * var(--screenshot-scale))
+        calc(4.5rem * var(--screenshot-scale))
     );
 }
 
@@ -708,8 +835,8 @@
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-empty-icon {
-    width: calc(3rem * var(--screenshot-scale));
-    height: calc(3rem * var(--screenshot-scale));
+    width: calc(2.5rem * var(--screenshot-scale));
+    height: calc(2.5rem * var(--screenshot-scale));
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-empty p {
@@ -790,6 +917,37 @@
 @media (max-width: 600px) {
     .kindle-header {
         align-items: flex-start;
+    }
+
+    .kindle-clock:has(.kindle-events) {
+        flex-direction: column;
+    }
+
+    .kindle-clock:has(.kindle-events) .kindle-clock-main {
+        width: 100%;
+    }
+
+    .kindle-events {
+        width: 100%;
+    }
+
+    .kindle-events ul {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .kindle-top-row {
+        flex-direction: column;
+    }
+
+    .kindle-weather-summary {
+        flex-basis: auto;
+        padding-right: 0;
+    }
+
+    .kindle-quote {
+        border-top: 1px solid #aaa;
+        border-left: 0;
+        padding: 1.5rem 0;
     }
 
     .kindle-current {
