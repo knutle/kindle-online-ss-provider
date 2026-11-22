@@ -599,6 +599,12 @@
     );
 }
 
+/* Five event rows are taller than the clock alone; trim the padding so the footer still fits. */
+.kindle-dashboard[data-screenshot-mode='true']
+    .kindle-clock:has(.kindle-events) {
+    padding-block: 1.5rem;
+}
+
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-clock-label,
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-eyebrow {
     font-size: calc(0.72rem * var(--screenshot-forecast-scale));

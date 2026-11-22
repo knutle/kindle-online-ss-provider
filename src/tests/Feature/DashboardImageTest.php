@@ -72,4 +72,22 @@ class DashboardImageTest extends TestCase
             ->assertUnprocessable()
             ->assertSeeText('Use ?city=London or provide both latitude and longitude.');
     }
+
+    public function test_it_forwards_the_calendar_url_to_the_rendered_dashboard(): void
+    {
+        $calendar = 'https://example.com/cal.ics?token=a&b=c';
+
+        $this->mock(DashboardImageRenderer::class)
+            ->shouldReceive('render')
+            ->once()
+            ->withArgs(function (string $url) use ($calendar): bool {
+                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+                return ($query['calendar'] ?? null) === $calendar;
+            })
+            ->andReturn('png');
+
+        $this->get('/dashboard.png?latitude=59.91&longitude=10.75&calendar='.rawurlencode($calendar))
+            ->assertOk();
+    }
 }

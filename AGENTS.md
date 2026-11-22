@@ -31,8 +31,10 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 
 ## Calendar events
 
-- `CALENDAR_ICAL_URL` (plus optional `CALENDAR_EVENT_LIMIT`, `CALENDAR_CACHE_SECONDS`) feeds `App\Services\CalendarEvents`, which fetches, caches and parses the iCal with `sabre/vobject` and expands RRULEs. The `/` route passes `events` to the page as an Inertia prop; the URL never reaches the browser, and the PNG renderer gets the events through the same route.
-- The container only gets env vars the Worker passes in `cloudflare/worker/index.ts` (`envVars`). A new runtime env var needs: `Env` field + `envVars` entry there, a secret sync step in `.github/workflows/deploy-cloudflare.yml`, and a README mention (setup + Cloudflare sections). `CALENDAR_ICAL_URL` is wired this way.
+- The iCal URL comes from the `calendar` query param on `/dashboard.png` (validated, forwarded to `/`); `App\Services\CalendarEvents::upcoming($url)` fetches, caches and parses it with `sabre/vobject` (optional env `CALENDAR_EVENT_LIMIT`, `CALENDAR_CACHE_SECONDS`) and expands RRULEs. The `/` route passes `events` to the page as an Inertia prop, so the URL never reaches the browser JS.
+- The container only gets env vars the Worker passes in `cloudflare/worker/index.ts` (`envVars`). A new runtime env var needs: `Env` field + `envVars` entry there, a secret sync step in `.github/workflows/deploy-cloudflare.yml`, and a README mention (setup + Cloudflare sections). (No calendar env var exists any more.)
+- Five event rows overflow the 1601px PNG (footer clipped); screenshot mode trims `.kindle-clock:has(.kindle-events)` padding. Recheck the footer after changing event/clock sizing.
+- To render `/dashboard.png` offline: `PUPPETEER_EXECUTABLE_PATH` pointing at a wrapper script around system Chrome (`--host-resolver-rules="MAP api.open-meteo.com 127.0.0.1:8443" --ignore-certificate-errors`), a local HTTPS mock serving `oslo-weather.json`, and `PHP_CLI_SERVER_WORKERS=4 SESSION_DRIVER=file CACHE_STORE=file BROWSERSHOT_NO_SANDBOX=true php artisan serve` (after `npm ci && npm run build`).
 - Events sit in `.kindle-clock` beside `.kindle-clock-main` (the time) in `.kindle-events`, with no vertical divider.
 - sabre `VEvent` has no typed properties, so PHPStan rejects `$vevent->DTSTART`. Use `$vevent->select('DTSTART')[0]` with an `instanceof Property\ICalendar\DateTime` check.
 - sabre/vobject 5 components are iterable, so PHPStan wants generics on param docs (`@param VCalendar<int, Node> $calendar`).

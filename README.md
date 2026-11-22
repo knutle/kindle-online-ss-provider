@@ -53,11 +53,13 @@ SQLite is configured by default. Once the development server is running, visit
 
 ## Calendar events
 
-Set `CALENDAR_ICAL_URL` in `src/.env` to an iCal (`.ics`) feed URL to list
+Add `calendar=<url-encoded iCal URL>` to the `/dashboard.png` query string (an
+`http(s)://` or `webcal://` `.ics` feed) to list
 upcoming events (including recurring ones, up to 60 days ahead) to the right of
-the local time. Without it, no events are shown. Optional settings:
+the local time. Without it, no events are shown. Optional `src/.env` settings:
 `CALENDAR_EVENT_LIMIT` (default `5`) and `CALENDAR_CACHE_SECONDS` (default
-`300`). The feed is fetched server-side, so the URL is never sent to the browser.
+`300`). The feed is fetched server-side. The URL is part of the request URL, so treat
+it as a secret and avoid logging or sharing it.
 
 ## Dependencies
 
@@ -83,7 +85,6 @@ small Worker (`cloudflare/worker/index.ts`, configured in `cloudflare/wrangler.j
 cd cloudflare
 npm install
 npx wrangler secret put APP_KEY   # value from `php artisan key:generate --show`
-npx wrangler secret put CALENDAR_ICAL_URL   # optional, enables calendar events
 npx wrangler deploy               # builds cloudflare/Dockerfile and deploys
 ```
 
@@ -95,7 +96,7 @@ fast-forward `release` to `main` (`git push origin main:release`).
 `.github/workflows/deploy-cloudflare.yml` deploys on pushes to the `release` branch (or
 manually via *Run workflow*). Add these repository secrets: `CLOUDFLARE_API_TOKEN`
 (with Workers and Containers edit permissions), `CLOUDFLARE_ACCOUNT_ID`, and
-optionally `APP_KEY` and `CALENDAR_ICAL_URL`, which are uploaded as Worker
+optionally `APP_KEY`, which is uploaded as Worker
 secrets in the same deploy. Optionally set the repository variable `WORKER_URL`
 (e.g. `https://kindle-weather-dashboard.<subdomain>.workers.dev`) so the workflow
 warms the container via `/up` after deploying; each deploy replaces the container,
