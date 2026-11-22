@@ -16,3 +16,4 @@
 - [ ] README/docs updated if behavior or setup changed
 - [ ] Layout changes checked in a rendered dashboard image
 - [ ] Cloudflare/deploy changes noted (secrets, wrangler config)
+- [ ] Agent instructions updated with lessons learned from this PR (final step before approving)
