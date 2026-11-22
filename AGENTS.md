@@ -31,6 +31,8 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 - The container only gets env vars the Worker passes in `cloudflare/worker/index.ts` (`envVars`). A new runtime env var needs: `Env` field + `envVars` entry there, a secret sync step in `.github/workflows/deploy-cloudflare.yml`, and a README mention (setup + Cloudflare sections). `CALENDAR_ICAL_URL` is wired this way.
 - Events sit in `.kindle-clock` beside `.kindle-clock-main` (the time) in `.kindle-events`, with no vertical divider.
 - sabre `VEvent` has no typed properties, so PHPStan rejects `$vevent->DTSTART`. Use `$vevent->select('DTSTART')[0]` with an `instanceof Property\ICalendar\DateTime` check.
+- sabre/vobject 5 components are iterable, so PHPStan wants generics on param docs (`@param VCalendar<int, Node> $calendar`).
+- Use `composer require --no-scripts -W` for upgrades; `--dev` also moves a package into `require-dev`, so check `composer.json`.
 - `composer require` runs a `boost:update` post-update script that fails here. Run `composer update <pkg> --no-scripts` and pin a real constraint (not `*`).
 - Run PHPStan with `vendor/bin/phpstan analyse --memory-limit=1G` and fix types properly; no ignore comments.
 - Tests need a `.env` with an app key (`cp .env.example .env && php artisan key:generate`); delete it afterwards. `tests/Unit/CalendarEventsTest.php` covers parsing.
