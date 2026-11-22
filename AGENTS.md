@@ -71,7 +71,7 @@ Pitfalls seen:
 - Run `cd src && XDEBUG_MODE=off php artisan test --filter=Dashboard` (needs `composer install`, `.env` and `php artisan key:generate`). Redirect output through `grep -v Xdebug` or it floods.
 - `tests/TestCase.php` disables Vite for feature tests, so they do not require a built frontend manifest.
 - Run `npm run check` to check formatting and lint; use `npx vp fmt <paths>` to format affected files.
-- Run `cd src && npm run test:calendar-layout` for browser-based calendar layout checks. The test uses Puppeteer's headless shell (`npm run browser:install`); set `CHROME_PATH` to an existing Chrome executable if needed.
+- Run `cd src && npm run test:calendar-layout` for browser-based calendar layout checks. The test uses Puppeteer's headless shell (`npm run browser:install`); set `CHROME_PATH` to an existing Chrome executable if needed. CI disables Chrome's sandbox because GitHub's Ubuntu runner does not allow it.
 
 ## Workflow conventions
 
