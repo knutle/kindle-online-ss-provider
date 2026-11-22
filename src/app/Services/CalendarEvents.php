@@ -12,6 +12,8 @@ use Sabre\VObject\Node;
 use Sabre\VObject\Property\ICalendar\DateTime as DateTimeProperty;
 use Sabre\VObject\Reader;
 use Sabre\VObject\Recur\EventIterator;
+use Sabre\VObject\Recur\MaxInstancesExceededException;
+use Sabre\VObject\Settings;
 use Throwable;
 
 class CalendarEvents
@@ -19,11 +21,11 @@ class CalendarEvents
     /**
      * @return list<array{title: string, start: string, end: string|null, allDay: bool}>
      */
-    public function upcoming(?DateTimeImmutable $now = null, ?int $limit = null): array
+    public function upcoming(?string $url, ?DateTimeImmutable $now = null, ?int $limit = null): array
     {
-        $url = config('services.calendar.ical_url');
+        $url = filled($url) ? preg_replace('#^webcals?://#i', 'https://', trim($url)) : null;
 
-        if (! $url) {
+        if (! $url || ! preg_match('#^https?://#i', $url)) {
             return [];
         }
 
@@ -110,19 +112,26 @@ class CalendarEvents
      */
     private function occurrences(VCalendar $calendar, VEvent $vevent, DateTimeImmutable $now, DateTimeImmutable $horizon): array
     {
-        $iterator = new EventIterator($calendar, (string) ($vevent->select('UID')[0] ?? ''));
-        $iterator->fastForward($now->setTimezone(new DateTimeZone('UTC'))->modify('-1 day'));
-        $starts = [];
+        // Fast-forwarding from an old DTSTART counts every skipped instance, so the default limit (3500) breaks long-running daily events.
+        Settings::$maxRecurrences = 50000;
 
-        while ($iterator->valid() && count($starts) < 50) {
-            $start = DateTimeImmutable::createFromInterface($iterator->getDtStart());
+        try {
+            $iterator = new EventIterator($calendar, (string) ($vevent->select('UID')[0] ?? ''));
+            $iterator->fastForward($now->setTimezone(new DateTimeZone('UTC'))->modify('-1 day'));
+            $starts = [];
 
-            if ($start > $horizon) {
-                break;
+            while ($iterator->valid() && count($starts) < 50) {
+                $start = DateTimeImmutable::createFromInterface($iterator->getDtStart());
+
+                if ($start > $horizon) {
+                    break;
+                }
+
+                $starts[] = $start;
+                $iterator->next();
             }
-
-            $starts[] = $start;
-            $iterator->next();
+        } catch (MaxInstancesExceededException) {
+            return [];
         }
 
         return $starts;

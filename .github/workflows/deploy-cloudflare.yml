@@ -50,7 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_KEY: ${{ secrets.APP_KEY }}
-      CALENDAR_ICAL_URL: ${{ secrets.CALENDAR_ICAL_URL }}
     defaults:
       run:
         working-directory: cloudflare
@@ -68,7 +67,7 @@ jobs:
       - name: Deploy Worker and container
         run: |
           # Upload secrets with the version so there is a single rollout instead of one per secret.
-          jq -n '{APP_KEY: env.APP_KEY, CALENDAR_ICAL_URL: env.CALENDAR_ICAL_URL} | with_entries(select(.value != null and .value != ""))' > "$RUNNER_TEMP/secrets.json"
+          jq -n '{APP_KEY: env.APP_KEY} | with_entries(select(.value != null and .value != ""))' > "$RUNNER_TEMP/secrets.json"
           npx wrangler deploy --secrets-file "$RUNNER_TEMP/secrets.json"
           rm -f "$RUNNER_TEMP/secrets.json"
         env:

@@ -27,6 +27,7 @@ class DashboardImageController extends Controller
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'label' => ['nullable', 'string', 'max:120'],
             'timezone' => ['nullable', 'timezone'],
+            'calendar' => ['nullable', 'string', 'max:2000'],
         ]);
 
         if ($validator->fails()) {
@@ -60,6 +61,7 @@ class DashboardImageController extends Controller
             'longitude' => $location['longitude'],
             'label' => $location['name'],
             'timezone' => $input['timezone'] ?? null,
+            'calendar' => $input['calendar'] ?? null,
             'screenshot' => '1',
         ], '', '&', PHP_QUERY_RFC3986);
 

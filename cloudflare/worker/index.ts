@@ -3,7 +3,6 @@ import { Container, getContainer } from '@cloudflare/containers';
 interface Env {
     LARAVEL: DurableObjectNamespace<LaravelContainer>;
     APP_KEY: string;
-    CALENDAR_ICAL_URL?: string;
 }
 
 export class LaravelContainer extends Container<Env> {
@@ -14,7 +13,6 @@ export class LaravelContainer extends Container<Env> {
         super(ctx, env);
         this.envVars = {
             APP_KEY: env.APP_KEY,
-            ...(env.CALENDAR_ICAL_URL ? { CALENDAR_ICAL_URL: env.CALENDAR_ICAL_URL } : {}),
         };
     }
 

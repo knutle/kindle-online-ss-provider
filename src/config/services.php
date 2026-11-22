@@ -36,7 +36,6 @@ return [
     ],
 
     'calendar' => [
-        'ical_url' => env('CALENDAR_ICAL_URL'),
         'limit' => (int) env('CALENDAR_EVENT_LIMIT', 5),
         'cache_seconds' => (int) env('CALENDAR_CACHE_SECONDS', 300),
     ],

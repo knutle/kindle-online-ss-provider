@@ -48,4 +48,15 @@ ICS;
         $this->assertTrue($events[1]['allDay']);
         $this->assertStringStartsWith('2026-11-23T08:00:00', $events[0]['start']);
     }
+
+    public function test_it_handles_long_running_daily_events(): void
+    {
+        $ical = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//test//EN\r\nBEGIN:VEVENT\r\nUID:old\r\n"
+            ."DTSTART:20120801T050000Z\r\nDTEND:20120801T060000Z\r\nRRULE:FREQ=DAILY\r\nSUMMARY:Old daily\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
+
+        $events = (new CalendarEvents)->parse($ical, new DateTimeImmutable('2026-11-22T12:00:00Z'), 2);
+
+        $this->assertSame(['Old daily', 'Old daily'], array_column($events, 'title'));
+        $this->assertStringStartsWith('2026-11-23T05:00:00', $events[0]['start']);
+    }
 }
