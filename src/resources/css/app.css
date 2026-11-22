@@ -253,7 +253,7 @@
 
 .kindle-events ul {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
     gap: 0.5rem 1rem;
     margin: 0.6rem 0 0;
     padding: 0;
@@ -266,20 +266,23 @@
     flex-direction: column;
     border-top: 1px solid #aaa;
     padding: 0.45rem 0;
-    font-size: 1.05rem;
+    font-size: 2.1rem;
 }
 
 .kindle-event-when {
     font-family: Arial, sans-serif;
-    font-size: 0.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: 0.08em;
 }
 
 .kindle-event-title {
+    display: -webkit-box;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-height: 1.2;
 }
 
 .kindle-clock-label,
@@ -821,6 +824,25 @@
 
     .kindle-events {
         width: 100%;
+    }
+
+    .kindle-events ul {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+    }
+
+    .kindle-top-row {
+        flex-direction: column;
+    }
+
+    .kindle-weather-summary {
+        flex-basis: auto;
+        padding-right: 0;
+    }
+
+    .kindle-quote {
+        border-top: 1px solid #aaa;
+        border-left: 0;
+        padding: 1.5rem 0;
     }
 
     .kindle-current {

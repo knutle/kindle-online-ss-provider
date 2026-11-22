@@ -71,6 +71,7 @@ Pitfalls seen:
 - Run `cd src && XDEBUG_MODE=off php artisan test --filter=Dashboard` (needs `composer install`, `.env` and `php artisan key:generate`). Redirect output through `grep -v Xdebug` or it floods.
 - `tests/TestCase.php` disables Vite for feature tests, so they do not require a built frontend manifest.
 - Run `npm run check` to check formatting and lint; use `npx vp fmt <paths>` to format affected files.
+- As root, run it as `CI=true CHROME_PATH=/usr/bin/google-chrome npm run test:calendar-layout` (needs `npm ci` first; `CALENDAR_LAYOUT_SCREENSHOT_DIR=/tmp` saves the renders to view).
 - Run `cd src && npm run test:calendar-layout` for browser-based calendar layout checks. The test uses Puppeteer's headless shell (`npm run browser:install`); set `CHROME_PATH` to an existing Chrome executable if needed. CI disables Chrome's sandbox because GitHub's Ubuntu runner does not allow it.
 
 ## Workflow conventions
@@ -92,3 +93,4 @@ Pitfalls seen:
 4. No vertical divider between the clock and the calendar events.
 5. Screenshot-mode rows have 35px horizontal padding (was 20px). The forecast/quote row has that padding only at its outer edges, with a 15px gap on each side of the divider and no flex gap.
 6. Quote of the day is centred horizontally (`align-items: center; text-align: center`), in both screenshot and normal mode. The row's divider/gap rules in `.kindle-top-row`, `.kindle-weather-summary` and `.kindle-quote` apply in both modes; screenshot mode only overrides padding.
+7. Calendar event text is doubled (title 2.1rem, time 1.5rem) in `.kindle-events li` / `.kindle-event-when`; the grid column minimum is 12rem (8rem on ≤600px). Titles wrap to two lines (`-webkit-line-clamp: 2`). On ≤600px `.kindle-top-row` stacks the forecast above the quote with a horizontal divider.
