@@ -9,7 +9,8 @@
       "image": "./Dockerfile",
       "image_build_context": "../src",
       "instance_type": "standard-2",
-      "max_instances": 2
+      "max_instances": 2,
+      "observability": { "logs": { "enabled": true } }
     }
   ],
   "durable_objects": {
