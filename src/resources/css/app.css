@@ -226,8 +226,24 @@
 
 .kindle-clock-main {
     display: flex;
+    min-width: 0;
+    max-width: 100%;
     flex-direction: column;
     align-items: center;
+}
+
+.kindle-clock:has(.kindle-events) .kindle-clock-main {
+    width: 40%;
+}
+
+.kindle-next-event-title {
+    max-width: 100%;
+    margin: 0 0 0.4rem;
+    overflow: hidden;
+    font-size: 1.6rem;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .kindle-events {
@@ -603,9 +619,9 @@
     );
 }
 
-.kindle-dashboard[data-screenshot-mode='true']
-    .kindle-clock:has(.kindle-events) {
-    padding-block: 1.5rem;
+/* The next event plus its list is taller than the clock alone; shrink it so the footer still fits. */
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-clock-event {
+    padding-block: 1rem;
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-clock-label,
@@ -797,6 +813,10 @@
 
     .kindle-clock:has(.kindle-events) {
         flex-direction: column;
+    }
+
+    .kindle-clock:has(.kindle-events) .kindle-clock-main {
+        width: 100%;
     }
 
     .kindle-events {
