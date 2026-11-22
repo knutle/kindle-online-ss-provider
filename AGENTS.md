@@ -21,7 +21,9 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 
 - `src/tests/Fixtures/oslo-weather.json` is a raw five-day Open-Meteo response. Reuse it for deterministic weather mocks instead of depending on live API responses in tests.
 - Wrangler's local container uses `src/` as its image build context. Run `cd cloudflare && npm ci && npx wrangler dev --local --var APP_KEY:01234567890123456789012345678901`; Docker Desktop must be running. The example key is disposable and local-only; never use it for deployment or commit a real `APP_KEY`.
+- Put Wrangler's ignore rules in `src/.dockerignore`; it reads the context-root ignore file, so don't rely only on `cloudflare/Dockerfile.dockerignore`. Exclude `bootstrap/cache/*.php` and clear generated Laravel package/service manifests before `composer dump-autoload --no-dev` to avoid stale package discovery referencing dev-only providers.
 - The first local container build pulls its base images and installs PHP/Node dependencies, so allow several minutes and wait for Wrangler's ready message before testing the local endpoint.
+- Verify the running app with `curl -i http://localhost:8787/up` and render the PNG with `curl -o /tmp/dashboard.png 'http://localhost:8787/dashboard.png?latitude=59.91&longitude=10.75&label=Oslo'`; a successful image response is `image/png` at 1236x1601.
 
 ## Verifying rendering (required for visual changes)
 

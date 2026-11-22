@@ -15,7 +15,8 @@ RUN composer install --no-dev --no-scripts --no-autoloader
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 COPY . .
-RUN composer dump-autoload --no-dev \
+RUN rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
+    && composer dump-autoload --no-dev \
     && cp .env.example .env && php artisan key:generate --force \
     && npm run build \
     && rm .env
@@ -35,7 +36,8 @@ COPY --from=assets /app/public/build ./public/build
 COPY --from=assets /app/resources/js/actions ./resources/js/actions
 COPY --from=assets /app/resources/js/routes ./resources/js/routes
 COPY --from=assets /app/resources/js/wayfinder ./resources/js/wayfinder
-RUN composer dump-autoload --no-dev --optimize \
+RUN rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
+    && composer dump-autoload --no-dev --optimize \
     && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs database \
     && touch database/database.sqlite \
     && chmod -R a+rwX storage bootstrap/cache database
