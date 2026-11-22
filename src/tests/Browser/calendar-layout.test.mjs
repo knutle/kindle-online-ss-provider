@@ -79,7 +79,7 @@ before(async () => {
     baseUrl = `http://127.0.0.1:${server.httpServer.address().port}`;
     browser = await puppeteer.launch({
         executablePath: process.env.CHROME_PATH || undefined,
-        headless: true,
+        headless: 'shell',
     });
 });
 
