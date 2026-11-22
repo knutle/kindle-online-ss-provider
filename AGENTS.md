@@ -28,6 +28,7 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 ## Calendar events
 
 - `CALENDAR_ICAL_URL` (plus optional `CALENDAR_EVENT_LIMIT`, `CALENDAR_CACHE_SECONDS`) feeds `App\Services\CalendarEvents`, which fetches, caches and parses the iCal with `sabre/vobject` and expands RRULEs. The `/` route passes `events` to the page as an Inertia prop; the URL never reaches the browser, and the PNG renderer gets the events through the same route.
+- The container only gets env vars the Worker passes in `cloudflare/worker/index.ts` (`envVars`). A new runtime env var needs: `Env` field + `envVars` entry there, a secret sync step in `.github/workflows/deploy-cloudflare.yml`, and a README mention (setup + Cloudflare sections). `CALENDAR_ICAL_URL` is wired this way.
 - Events sit in `.kindle-clock` beside `.kindle-clock-main` (the time) in `.kindle-events`, with no vertical divider.
 - sabre `VEvent` has no typed properties, so PHPStan rejects `$vevent->DTSTART`. Use `$vevent->select('DTSTART')[0]` with an `instanceof Property\ICalendar\DateTime` check.
 - `composer require` runs a `boost:update` post-update script that fails here. Run `composer update <pkg> --no-scripts` and pin a real constraint (not `*`).
@@ -55,6 +56,8 @@ Pitfalls seen:
 - Vite error overlays show up in the screenshot, so read it if the page looks wrong.
 
 ## Workflow conventions
+
+- Before opening a PR, walk the template checklist: README/docs, rendered image for layout changes, and Cloudflare/deploy impact (secrets, worker, workflow). Tick items only when actually handled.
 
 - Keep changes surgical. Don't commit screenshots or harness files.
 - Branch from `main`, push, and open the PR with `gh pr create --base main --head <branch>` (push first, or `gh` aborts).
