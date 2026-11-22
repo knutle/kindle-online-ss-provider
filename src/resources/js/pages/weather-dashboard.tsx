@@ -452,57 +452,97 @@ export default function WeatherDashboard() {
                         className="kindle-weather"
                         aria-labelledby="weather-heading"
                     >
-                        <div className="kindle-section-heading">
-                            <div>
-                                <p className="kindle-eyebrow">
-                                    YOUR LOCAL FORECAST
-                                </p>
-                                <h1 id="weather-heading">{locationLabel}</h1>
+                        <div className="kindle-top-row">
+                            <div className="kindle-weather-summary">
+                                <div className="kindle-section-heading">
+                                    <div>
+                                        <p className="kindle-eyebrow">
+                                            YOUR LOCAL FORECAST
+                                        </p>
+                                        <h1 id="weather-heading">
+                                            {locationLabel}
+                                        </h1>
+                                    </div>
+                                    {forecast && (
+                                        <button
+                                            aria-label="Refresh weather"
+                                            className="kindle-icon-button"
+                                            disabled={loading}
+                                            onClick={() => {
+                                                if (location)
+                                                    void updateWeather(
+                                                        location,
+                                                    );
+                                            }}
+                                            type="button"
+                                        >
+                                            <RefreshCw
+                                                aria-hidden="true"
+                                                size={20}
+                                            />
+                                            <span>Refresh</span>
+                                        </button>
+                                    )}
+                                </div>
+                                {forecast && (
+                                    <div className="kindle-current">
+                                        <WeatherIcon
+                                            className="kindle-current-icon"
+                                            code={forecast.code}
+                                            isDay={forecast.isDay}
+                                        />
+                                        <div className="kindle-current-reading">
+                                            <p className="kindle-temperature">
+                                                {forecast.temperature}
+                                                <span>°</span>
+                                            </p>
+                                            <p className="kindle-condition">
+                                                {weatherDescription(
+                                                    forecast.code,
+                                                )}
+                                            </p>
+                                        </div>
+                                        <div className="kindle-current-details">
+                                            <p>
+                                                H: {forecast.days[0]?.high}°{" "}
+                                                <span aria-hidden="true">
+                                                    /
+                                                </span>{" "}
+                                                L: {forecast.days[0]?.low}°
+                                            </p>
+                                            <p>
+                                                Feels like {forecast.feelsLike}°
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                            {forecast && (
-                                <button
-                                    aria-label="Refresh weather"
-                                    className="kindle-icon-button"
-                                    disabled={loading}
-                                    onClick={() => {
-                                        if (location)
-                                            void updateWeather(location);
-                                    }}
-                                    type="button"
+                            <section
+                                className="kindle-quote"
+                                aria-labelledby="quote-heading"
+                            >
+                                <p
+                                    className="kindle-eyebrow"
+                                    id="quote-heading"
                                 >
-                                    <RefreshCw aria-hidden="true" size={20} />
-                                    <span>Refresh</span>
-                                </button>
-                            )}
+                                    QUOTE OF THE DAY
+                                </p>
+                                {now && (
+                                    <figure>
+                                        <blockquote>
+                                            &ldquo;{quoteOfTheDay(now).text}
+                                            &rdquo;
+                                        </blockquote>
+                                        <figcaption>
+                                            &mdash; {quoteOfTheDay(now).author}
+                                        </figcaption>
+                                    </figure>
+                                )}
+                            </section>
                         </div>
 
                         {forecast ? (
                             <>
-                                <div className="kindle-current">
-                                    <WeatherIcon
-                                        className="kindle-current-icon"
-                                        code={forecast.code}
-                                        isDay={forecast.isDay}
-                                    />
-                                    <div className="kindle-current-reading">
-                                        <p className="kindle-temperature">
-                                            {forecast.temperature}
-                                            <span>°</span>
-                                        </p>
-                                        <p className="kindle-condition">
-                                            {weatherDescription(forecast.code)}
-                                        </p>
-                                    </div>
-                                    <div className="kindle-current-details">
-                                        <p>
-                                            H: {forecast.days[0]?.high}°{" "}
-                                            <span aria-hidden="true">/</span> L:{" "}
-                                            {forecast.days[0]?.low}°
-                                        </p>
-                                        <p>Feels like {forecast.feelsLike}°</p>
-                                    </div>
-                                </div>
-
                                 <div className="kindle-weather-facts">
                                     <p>
                                         <span>Humidity</span>
@@ -631,25 +671,6 @@ export default function WeatherDashboard() {
                                 Use device location
                             </button>
                         </div>
-                    </section>
-
-                    <section
-                        className="kindle-quote"
-                        aria-labelledby="quote-heading"
-                    >
-                        <p className="kindle-eyebrow" id="quote-heading">
-                            QUOTE OF THE DAY
-                        </p>
-                        {now && (
-                            <figure>
-                                <blockquote>
-                                    &ldquo;{quoteOfTheDay(now).text}&rdquo;
-                                </blockquote>
-                                <figcaption>
-                                    &mdash; {quoteOfTheDay(now).author}
-                                </figcaption>
-                            </figure>
-                        )}
                     </section>
                 </div>
 
