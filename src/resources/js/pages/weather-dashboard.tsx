@@ -243,6 +243,7 @@ export default function WeatherDashboard({
 }: {
     events?: CalendarEvent[];
 }) {
+    const [nextEvent, ...laterEvents] = events;
     const [now, setNow] = useState<Date | null>(null);
     const [location, setLocation] = useState<WeatherLocation | null>(null);
     const [forecast, setForecast] = useState<Forecast | null>(null);
@@ -469,27 +470,54 @@ export default function WeatherDashboard({
                 </header>
 
                 <section
-                    className="kindle-clock"
+                    className={`kindle-clock${nextEvent ? ' kindle-clock-event' : ''}`}
                     aria-label="Current date and time"
                 >
                     <div className="kindle-clock-main">
-                        <p className="kindle-clock-label">LOCAL TIME</p>
-                        <time dateTime={now?.toISOString()}>
-                            {now
-                                ? new Intl.DateTimeFormat(undefined, {
-                                      hourCycle: 'h23',
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                      timeZone: forecast?.timezone,
-                                  }).format(now)
-                                : '--:--'}
-                        </time>
+                        {nextEvent ? (
+                            <>
+                                <p className="kindle-clock-label">NEXT EVENT</p>
+                                <time dateTime={nextEvent.start}>
+                                    {nextEvent.allDay
+                                        ? 'All day'
+                                        : new Intl.DateTimeFormat(undefined, {
+                                              hourCycle: 'h23',
+                                              hour: '2-digit',
+                                              minute: '2-digit',
+                                              timeZone: forecast?.timezone,
+                                          }).format(new Date(nextEvent.start))}
+                                </time>
+                                <p className="kindle-next-event-title">
+                                    {nextEvent.title}
+                                </p>
+                                <p className="kindle-clock-label">
+                                    {formatEventTime(
+                                        nextEvent,
+                                        forecast?.timezone,
+                                    ).toUpperCase()}
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <p className="kindle-clock-label">LOCAL TIME</p>
+                                <time dateTime={now?.toISOString()}>
+                                    {now
+                                        ? new Intl.DateTimeFormat(undefined, {
+                                              hourCycle: 'h23',
+                                              hour: '2-digit',
+                                              minute: '2-digit',
+                                              timeZone: forecast?.timezone,
+                                          }).format(now)
+                                        : '--:--'}
+                                </time>
+                            </>
+                        )}
                     </div>
-                    {events.length > 0 && (
+                    {laterEvents.length > 0 && (
                         <div className="kindle-events">
                             <p className="kindle-clock-label">UPCOMING</p>
                             <ul>
-                                {events.map((event) => (
+                                {laterEvents.map((event) => (
                                     <li key={`${event.start}-${event.title}`}>
                                         <span className="kindle-event-when">
                                             {formatEventTime(

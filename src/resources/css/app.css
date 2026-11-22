@@ -230,6 +230,16 @@
     align-items: center;
 }
 
+.kindle-next-event-title {
+    max-width: 100%;
+    margin: 0 0 0.4rem;
+    overflow: hidden;
+    font-size: 1.6rem;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .kindle-events {
     min-width: 0;
     flex: 1;
@@ -599,10 +609,9 @@
     );
 }
 
-/* Five event rows are taller than the clock alone; trim the padding so the footer still fits. */
-.kindle-dashboard[data-screenshot-mode='true']
-    .kindle-clock:has(.kindle-events) {
-    padding-block: 1.5rem;
+/* The next event plus its list is taller than the clock alone; shrink it so the footer still fits. */
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-clock-event {
+    padding-block: 1rem;
 }
 
 .kindle-dashboard[data-screenshot-mode='true'] .kindle-clock-label,
