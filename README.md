@@ -4,7 +4,7 @@ This repository contains a Laravel weather dashboard that can also serve a
 Kindle-sized PNG image of the dashboard. The interactive dashboard lets you
 search for a city or use your device location, then shows current conditions
 and a five-day forecast. Weather data is provided by Open-Meteo. If an iCal
-feed is configured, upcoming calendar events are shown beside the local time.
+feed has upcoming events, the next event is shown in place of the local time.
 
 The Laravel application is in [`src/`](src/). Its
 `/dashboard.png` endpoint renders the dashboard in a headless browser at
@@ -58,9 +58,10 @@ Set `CHROME_PATH` to use an existing Chrome installation instead.
 ## Calendar events
 
 Add `calendar=<url-encoded iCal URL>` to the `/dashboard.png` query string (an
-`http(s)://` or `webcal://` `.ics` feed) to list
-upcoming events (including recurring ones, up to 60 days ahead) side by side
-beside the local time, wrapping when needed. Without it, no events are shown.
+`http(s)://` or `webcal://` `.ics` feed) to show upcoming events, including
+recurring ones up to 60 days ahead. The next event replaces the local time;
+remaining events appear beside it, wrapping when needed. If there are no
+events, the local time is shown instead.
 Optional `src/.env` settings:
 `CALENDAR_EVENT_LIMIT` (default `5`) and `CALENDAR_CACHE_SECONDS` (default
 `300`). The feed is fetched server-side. The URL is part of the request URL, so treat
