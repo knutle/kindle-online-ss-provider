@@ -36,7 +36,10 @@ Pitfalls seen:
 ## Workflow conventions
 
 - Keep changes surgical. Don't commit screenshots or harness files.
-- Branch from `main`, push, and open the PR with `gh pr create --base main --head <branch>` (push first, or `gh` aborts). No PR template exists. Include the Co-authored-by trailer on commits.
+- Branch from `main`, push, and open the PR with `gh pr create --base main --head <branch>` (push first, or `gh` aborts).
+- Follow `.github/PULL_REQUEST_TEMPLATE.md` (Summary, Changes, Verification, Not verified / notes, Checklist) when writing PR descriptions.
+- Be explicit about what was not verified (untested layouts, undeployed changes, required secrets).
+- End commit messages with the trailer `Co-authored-by: copilot-swe-agent[bot] <198982749+Copilot@users.noreply.github.com>`.
 - Keep replies short; the user typically asks for a visual check after each tweak, so render and look at the image every time.
 
 ## Change log of user-requested tweaks
