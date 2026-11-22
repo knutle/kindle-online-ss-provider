@@ -573,9 +573,7 @@
     padding-inline: 35px;
 }
 
-.kindle-dashboard[data-screenshot-mode='true']
-    .kindle-weather-summary
-    > * {
+.kindle-dashboard[data-screenshot-mode='true'] .kindle-weather-summary > * {
     padding-right: 0;
 }
 

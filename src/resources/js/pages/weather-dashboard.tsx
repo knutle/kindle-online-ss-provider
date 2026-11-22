@@ -1,4 +1,4 @@
-import { Head } from "@inertiajs/react";
+import { Head } from '@inertiajs/react';
 import {
     Cloud,
     CloudDrizzle,
@@ -11,8 +11,8 @@ import {
     RefreshCw,
     Search,
     Sun,
-} from "lucide-react";
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+} from 'lucide-react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 
 type WeatherLocation = {
     latitude: number;
@@ -72,32 +72,32 @@ type WeatherResponse = {
 
 const quotes = [
     {
-        text: "Nothing matters, which is why I still bring an umbrella.",
-        author: "A Damp Existentialist",
+        text: 'Nothing matters, which is why I still bring an umbrella.',
+        author: 'A Damp Existentialist',
     },
     {
-        text: "The universe is meaningless, but it rains at three.",
-        author: "A Mildly Concerned Cloud",
+        text: 'The universe is meaningless, but it rains at three.',
+        author: 'A Mildly Concerned Cloud',
     },
     {
-        text: "We are all just stardust, slowly checking the weather.",
+        text: 'We are all just stardust, slowly checking the weather.',
         author: "Carl Sagan's Disappointed Cat",
     },
     {
-        text: "Why fear the void when the void has no opinion on Tuesday?",
-        author: "A Sentient Toaster",
+        text: 'Why fear the void when the void has no opinion on Tuesday?',
+        author: 'A Sentient Toaster',
     },
     {
         text: "Hope is just a sunny day that hasn't been cancelled yet.",
-        author: "The Last Optimistic Pigeon",
+        author: 'The Last Optimistic Pigeon',
     },
     {
-        text: "Life is pointless, but at least the wind is consistent.",
-        author: "A Philosophical Traffic Cone",
+        text: 'Life is pointless, but at least the wind is consistent.',
+        author: 'A Philosophical Traffic Cone',
     },
     {
-        text: "Everything ends, even this fog.",
-        author: "A Tired Lighthouse",
+        text: 'Everything ends, even this fog.',
+        author: 'A Tired Lighthouse',
     },
 ];
 
@@ -110,19 +110,19 @@ function quoteOfTheDay(date: Date) {
     return quotes[day % quotes.length];
 }
 
-const savedLocationKey = "kindle-weather-location";
+const savedLocationKey = 'kindle-weather-location';
 
 function weatherDescription(code: number): string {
-    if (code === 0) return "Clear sky";
-    if (code <= 3) return "Partly cloudy";
-    if (code === 45 || code === 48) return "Foggy";
-    if (code >= 51 && code <= 57) return "Drizzle";
-    if (code >= 61 && code <= 67) return "Rain";
-    if (code >= 71 && code <= 77) return "Snow";
-    if (code >= 80 && code <= 82) return "Rain showers";
-    if (code === 85 || code === 86) return "Snow showers";
-    if (code >= 95) return "Thunderstorm";
-    return "Cloudy";
+    if (code === 0) return 'Clear sky';
+    if (code <= 3) return 'Partly cloudy';
+    if (code === 45 || code === 48) return 'Foggy';
+    if (code >= 51 && code <= 57) return 'Drizzle';
+    if (code >= 61 && code <= 67) return 'Rain';
+    if (code >= 71 && code <= 77) return 'Snow';
+    if (code >= 80 && code <= 82) return 'Rain showers';
+    if (code === 85 || code === 86) return 'Snow showers';
+    if (code >= 95) return 'Thunderstorm';
+    return 'Cloudy';
 }
 
 function WeatherIcon({
@@ -161,12 +161,12 @@ function WeatherIcon({
 }
 
 function formatDay(date: string, index: number): string {
-    if (index === 0) return "Today";
-    if (index === 1) return "Tomorrow";
+    if (index === 0) return 'Today';
+    if (index === 1) return 'Tomorrow';
 
     return new Intl.DateTimeFormat(undefined, {
-        weekday: "short",
-        timeZone: "UTC",
+        weekday: 'short',
+        timeZone: 'UTC',
     }).format(new Date(`${date}T12:00:00Z`));
 }
 
@@ -175,21 +175,21 @@ async function fetchForecast(location: WeatherLocation): Promise<Forecast> {
         latitude: String(location.latitude),
         longitude: String(location.longitude),
         current:
-            "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,is_day,wind_speed_10m",
-        daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max",
-        temperature_unit: "celsius",
-        wind_speed_unit: "kmh",
+            'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,is_day,wind_speed_10m',
+        daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+        temperature_unit: 'celsius',
+        wind_speed_unit: 'kmh',
         timezone:
-            new URLSearchParams(window.location.search).get("timezone") ??
-            "auto",
-        forecast_days: "5",
+            new URLSearchParams(window.location.search).get('timezone') ??
+            'auto',
+        forecast_days: '5',
     });
     const response = await fetch(
         `https://api.open-meteo.com/v1/forecast?${params}`,
     );
 
     if (!response.ok) {
-        throw new Error("Weather service is unavailable. Try again shortly.");
+        throw new Error('Weather service is unavailable. Try again shortly.');
     }
 
     const data = (await response.json()) as WeatherResponse;
@@ -213,7 +213,7 @@ async function fetchForecast(location: WeatherLocation): Promise<Forecast> {
         timezone:
             data.timezone ??
             Intl.DateTimeFormat().resolvedOptions().timeZone ??
-            "UTC",
+            'UTC',
     };
 }
 
@@ -222,18 +222,18 @@ function formatEventTime(event: CalendarEvent, timeZone?: string): string {
 
     if (event.allDay) {
         return new Intl.DateTimeFormat(undefined, {
-            weekday: "short",
-            day: "numeric",
-            month: "short",
-            timeZone: "UTC",
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            timeZone: 'UTC',
         }).format(new Date(`${event.start.slice(0, 10)}T00:00:00Z`));
     }
 
     return new Intl.DateTimeFormat(undefined, {
-        weekday: "short",
-        hourCycle: "h23",
-        hour: "2-digit",
-        minute: "2-digit",
+        weekday: 'short',
+        hourCycle: 'h23',
+        hour: '2-digit',
+        minute: '2-digit',
         timeZone,
     }).format(start);
 }
@@ -246,7 +246,7 @@ export default function WeatherDashboard({
     const [now, setNow] = useState<Date | null>(null);
     const [location, setLocation] = useState<WeatherLocation | null>(null);
     const [forecast, setForecast] = useState<Forecast | null>(null);
-    const [city, setCity] = useState("");
+    const [city, setCity] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [screenshotMode, setScreenshotMode] = useState(false);
@@ -279,7 +279,7 @@ export default function WeatherDashboard({
             setError(
                 reason instanceof Error
                     ? reason.message
-                    : "Could not load the weather forecast.",
+                    : 'Could not load the weather forecast.',
             );
         } finally {
             setLoading(false);
@@ -299,12 +299,12 @@ export default function WeatherDashboard({
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const screenshot = params.get("screenshot") === "1";
+        const screenshot = params.get('screenshot') === '1';
 
         if (screenshot) setScreenshotMode(true);
 
-        const latitude = params.get("latitude");
-        const longitude = params.get("longitude");
+        const latitude = params.get('latitude');
+        const longitude = params.get('longitude');
 
         if (latitude !== null && longitude !== null) {
             const parsedLatitude = Number(latitude);
@@ -318,9 +318,9 @@ export default function WeatherDashboard({
                     latitude: parsedLatitude,
                     longitude: parsedLongitude,
                     name:
-                        params.get("label") ??
+                        params.get('label') ??
                         `${parsedLatitude.toFixed(4)}°, ${parsedLongitude.toFixed(4)}°`,
-                    country: "",
+                    country: '',
                 });
 
                 return;
@@ -334,16 +334,16 @@ export default function WeatherDashboard({
                 const parsed = JSON.parse(saved) as WeatherLocation;
 
                 if (
-                    typeof parsed.latitude === "number" &&
-                    typeof parsed.longitude === "number" &&
-                    typeof parsed.name === "string" &&
-                    typeof parsed.country === "string"
+                    typeof parsed.latitude === 'number' &&
+                    typeof parsed.longitude === 'number' &&
+                    typeof parsed.name === 'string' &&
+                    typeof parsed.country === 'string'
                 ) {
                     void updateWeather(parsed);
                 }
             }
         } catch {
-            setError("Could not read the saved location. Search for a city.");
+            setError('Could not read the saved location. Search for a city.');
         }
     }, [updateWeather]);
 
@@ -359,16 +359,16 @@ export default function WeatherDashboard({
         try {
             const params = new URLSearchParams({
                 name: query,
-                count: "1",
-                language: "en",
-                format: "json",
+                count: '1',
+                language: 'en',
+                format: 'json',
             });
             const response = await fetch(
                 `https://geocoding-api.open-meteo.com/v1/search?${params}`,
             );
 
             if (!response.ok) {
-                throw new Error("Location search is unavailable. Try again.");
+                throw new Error('Location search is unavailable. Try again.');
             }
 
             const result = (await response.json()) as {
@@ -383,7 +383,7 @@ export default function WeatherDashboard({
             const match = result.results?.[0];
 
             if (!match) {
-                throw new Error("No matching city found. Try another search.");
+                throw new Error('No matching city found. Try another search.');
             }
 
             const nextLocation = {
@@ -393,13 +393,13 @@ export default function WeatherDashboard({
                 country: match.country,
                 region: match.admin1,
             };
-            setCity("");
+            setCity('');
             await updateWeather(nextLocation);
         } catch (reason) {
             setError(
                 reason instanceof Error
                     ? reason.message
-                    : "Could not find that location.",
+                    : 'Could not find that location.',
             );
             setLoading(false);
         }
@@ -407,7 +407,7 @@ export default function WeatherDashboard({
 
     function useDeviceLocation() {
         if (!navigator.geolocation) {
-            setError("Device location is not available in this browser.");
+            setError('Device location is not available in this browser.');
             return;
         }
 
@@ -418,14 +418,14 @@ export default function WeatherDashboard({
                 void updateWeather({
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude,
-                    name: "Current location",
-                    country: "",
+                    name: 'Current location',
+                    country: '',
                 });
             },
             () => {
                 setLoading(false);
                 setError(
-                    "Could not access device location. Search for a city instead.",
+                    'Could not access device location. Search for a city instead.',
                 );
             },
             { enableHighAccuracy: false, timeout: 10_000 },
@@ -435,17 +435,17 @@ export default function WeatherDashboard({
     const locationLabel = location
         ? [location.name, location.region, location.country]
               .filter(Boolean)
-              .join(", ")
-        : "Choose a location";
+              .join(', ')
+        : 'Choose a location';
 
     return (
         <>
             <Head title="Weather &amp; Time" />
             <main
                 className="kindle-dashboard"
-                data-screenshot-mode={screenshotMode ? "true" : undefined}
+                data-screenshot-mode={screenshotMode ? 'true' : undefined}
                 data-screenshot-ready={
-                    screenshotMode && forecast ? "true" : undefined
+                    screenshotMode && forecast ? 'true' : undefined
                 }
             >
                 <header className="kindle-header">
@@ -458,13 +458,13 @@ export default function WeatherDashboard({
                     <p className="kindle-date">
                         {now
                             ? new Intl.DateTimeFormat(undefined, {
-                                  weekday: "long",
-                                  month: "long",
-                                  day: "numeric",
-                                  year: "numeric",
+                                  weekday: 'long',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  year: 'numeric',
                                   timeZone: forecast?.timezone,
                               }).format(now)
-                            : ""}
+                            : ''}
                     </p>
                 </header>
 
@@ -477,12 +477,12 @@ export default function WeatherDashboard({
                         <time dateTime={now?.toISOString()}>
                             {now
                                 ? new Intl.DateTimeFormat(undefined, {
-                                      hourCycle: "h23",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
+                                      hourCycle: 'h23',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
                                       timeZone: forecast?.timezone,
                                   }).format(now)
-                                : "--:--"}
+                                : '--:--'}
                         </time>
                     </div>
                     {events.length > 0 && (
@@ -564,10 +564,10 @@ export default function WeatherDashboard({
                                         </div>
                                         <div className="kindle-current-details">
                                             <p>
-                                                H: {forecast.days[0]?.high}°{" "}
+                                                H: {forecast.days[0]?.high}°{' '}
                                                 <span aria-hidden="true">
                                                     /
-                                                </span>{" "}
+                                                </span>{' '}
                                                 L: {forecast.days[0]?.low}°
                                             </p>
                                             <p>
@@ -656,13 +656,13 @@ export default function WeatherDashboard({
 
                                 <p className="kindle-updated">
                                     {loading
-                                        ? "Updating forecast…"
+                                        ? 'Updating forecast…'
                                         : `Updated ${new Intl.DateTimeFormat(
                                               undefined,
                                               {
-                                                  hourCycle: "h23",
-                                                  hour: "2-digit",
-                                                  minute: "2-digit",
+                                                  hourCycle: 'h23',
+                                                  hour: '2-digit',
+                                                  minute: '2-digit',
                                                   timeZone: forecast.timezone,
                                               },
                                           ).format(forecast.updatedAt)}`}
@@ -677,8 +677,8 @@ export default function WeatherDashboard({
                                 />
                                 <p>
                                     {loading
-                                        ? "Finding your forecast…"
-                                        : "Choose a city or use device location to see the forecast."}
+                                        ? 'Finding your forecast…'
+                                        : 'Choose a city or use device location to see the forecast.'}
                                 </p>
                             </div>
                         )}
