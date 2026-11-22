@@ -65,7 +65,7 @@ Pitfalls seen:
 
 ## Workflow conventions
 
-- Before opening a PR, walk the template checklist: README/docs, rendered image for layout changes, and Cloudflare/deploy impact (secrets, worker, workflow). Tick items only when actually handled.
+- Before opening a PR, walk the template checklist: README/docs, rendered image for layout changes, and Cloudflare/deploy impact (secrets, worker, workflow). Tick items only when actually handled; strike through non-applicable items with `~~...~~` and leave them unticked.
 
 - Keep changes surgical. Don't commit screenshots or harness files.
 - Branch from `main`, push, and open the PR with `gh pr create --base main --head <branch>` (push first, or `gh` aborts).

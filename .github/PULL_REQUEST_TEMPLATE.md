@@ -13,6 +13,7 @@
 <!-- Anything untested, required secrets or config, deployment impact. Remove if not applicable. -->
 
 ## Checklist
+<!-- Tick items that were handled. Strike through non-applicable items with ~~...~~ and leave them unticked. -->
 - [ ] README/docs updated if behavior or setup changed
 - [ ] Layout changes checked in a rendered dashboard image
 - [ ] Cloudflare/deploy changes noted (secrets, wrangler config)
