@@ -89,7 +89,10 @@ npx wrangler deploy               # builds cloudflare/Dockerfile and deploys
 
 ### Automated deploys
 
-`.github/workflows/deploy-cloudflare.yml` deploys on pushes to `main` (or
+Tests run on every push to `main` via `.github/workflows/tests.yml`. To deploy,
+fast-forward `release` to `main` (`git push origin main:release`).
+
+`.github/workflows/deploy-cloudflare.yml` deploys on pushes to the `release` branch (or
 manually via *Run workflow*). Add these repository secrets: `CLOUDFLARE_API_TOKEN`
 (with Workers and Containers edit permissions), `CLOUDFLARE_ACCOUNT_ID`, and
 optionally `APP_KEY` and `CALENDAR_ICAL_URL`, which are uploaded as Worker
