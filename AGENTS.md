@@ -33,7 +33,7 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 - sabre `VEvent` has no typed properties, so PHPStan rejects `$vevent->DTSTART`. Use `$vevent->select('DTSTART')[0]` with an `instanceof Property\ICalendar\DateTime` check.
 - `composer require` runs a `boost:update` post-update script that fails here. Run `composer update <pkg> --no-scripts` and pin a real constraint (not `*`).
 - Run PHPStan with `vendor/bin/phpstan analyse --memory-limit=1G` and fix types properly; no ignore comments.
-- Tests need a `.env` with an app key (`cp .env.example .env && php artisan key:generate`); delete it afterwards. Feature tests that render the Inertia page 500 without a built Vite manifest (pre-existing). `tests/Unit/CalendarEventsTest.php` covers parsing.
+- Tests need a `.env` with an app key (`cp .env.example .env && php artisan key:generate`); delete it afterwards. `tests/Unit/CalendarEventsTest.php` covers parsing.
 
 ## Verifying rendering (required for visual changes)
 
@@ -61,7 +61,8 @@ Pitfalls seen:
 ## Tests
 
 - Run `cd src && XDEBUG_MODE=off php artisan test --filter=Dashboard` (needs `composer install`, `.env` and `php artisan key:generate`). Redirect output through `grep -v Xdebug` or it floods.
-- `DashboardTest::test_authenticated_users_can_visit_the_dashboard` fails with "Vite manifest not found" in a clean checkout (no `public/build`); this is pre-existing, not caused by CSS changes.
+- `tests/TestCase.php` disables Vite for feature tests, so they do not require a built frontend manifest.
+- Run `npm run check` to check formatting and lint; use `npx vp fmt <paths>` to format affected files.
 
 ## Workflow conventions
 
