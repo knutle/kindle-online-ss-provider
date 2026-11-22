@@ -51,12 +51,17 @@ headless Chrome browser used for PNG rendering, and builds frontend assets.
 SQLite is configured by default. Once the development server is running, visit
 <http://localhost:8000>.
 
+To test the calendar layout in a browser, run `npm run test:calendar-layout`
+from `src/` after installing the Puppeteer browser (`npm run browser:install`).
+Set `CHROME_PATH` to use an existing Chrome installation instead.
+
 ## Calendar events
 
 Add `calendar=<url-encoded iCal URL>` to the `/dashboard.png` query string (an
 `http(s)://` or `webcal://` `.ics` feed) to list
-upcoming events (including recurring ones, up to 60 days ahead) to the right of
-the local time. Without it, no events are shown. Optional `src/.env` settings:
+upcoming events (including recurring ones, up to 60 days ahead) side by side
+beside the local time, wrapping when needed. Without it, no events are shown.
+Optional `src/.env` settings:
 `CALENDAR_EVENT_LIMIT` (default `5`) and `CALENDAR_CACHE_SECONDS` (default
 `300`). The feed is fetched server-side. The URL is part of the request URL, so treat
 it as a secret and avoid logging or sharing it.
