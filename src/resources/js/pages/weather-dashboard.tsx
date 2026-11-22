@@ -65,26 +65,32 @@ type WeatherResponse = {
 
 const quotes = [
     {
-        text: "The journey of a thousand miles begins with a single step.",
-        author: "Lao Tzu",
-    },
-    { text: "What we think, we become.", author: "Buddha" },
-    {
-        text: "Well done is better than well said.",
-        author: "Benjamin Franklin",
-    },
-    { text: "The best way out is always through.", author: "Robert Frost" },
-    {
-        text: "Do what you can, with what you have, where you are.",
-        author: "Theodore Roosevelt",
+        text: "Nothing matters, which is why I still bring an umbrella.",
+        author: "A Damp Existentialist",
     },
     {
-        text: "Simplicity is the ultimate sophistication.",
-        author: "Leonardo da Vinci",
+        text: "The universe is meaningless, but it rains at three.",
+        author: "A Mildly Concerned Cloud",
     },
     {
-        text: "It always seems impossible until it is done.",
-        author: "Nelson Mandela",
+        text: "We are all just stardust, slowly checking the weather.",
+        author: "Carl Sagan's Disappointed Cat",
+    },
+    {
+        text: "Why fear the void when the void has no opinion on Tuesday?",
+        author: "A Sentient Toaster",
+    },
+    {
+        text: "Hope is just a sunny day that hasn't been cancelled yet.",
+        author: "The Last Optimistic Pigeon",
+    },
+    {
+        text: "Life is pointless, but at least the wind is consistent.",
+        author: "A Philosophical Traffic Cone",
+    },
+    {
+        text: "Everything ends, even this fog.",
+        author: "A Tired Lighthouse",
     },
 ];
 
