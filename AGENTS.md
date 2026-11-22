@@ -25,6 +25,7 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 - The first local container build pulls its base images and installs PHP/Node dependencies, so allow several minutes and wait for Wrangler's ready message before testing the local endpoint.
 - Verify the running app with `curl -i http://localhost:8787/up` and render the PNG with `curl -o /tmp/dashboard.png 'http://localhost:8787/dashboard.png?latitude=59.91&longitude=10.75&label=Oslo'`; a successful image response is `image/png` at 1236x1601.
 
+- Deploys trigger only on pushes to the `release` branch (not `main`); ship with `git push origin main:release`. `.github/workflows/tests.yml` runs `php artisan test` on pushes to `main`.
 - Every deploy replaces the container, so the first request cold-starts. `LaravelContainer.fetch` in `cloudflare/worker/index.ts` waits up to 60s/120s (the library defaults are 8s/20s). Upload secrets with `wrangler deploy --secrets-file`, not separate `secret put` calls, since each of those creates a new Worker version. The optional `WORKER_URL` repo variable enables a `/up` warm-up step. `wrangler deploy --dry-run` builds the Docker image and hangs without Docker.
 - Laravel logs go to stderr (`LOG_CHANNEL=stderr` in the Dockerfile) and reach the dashboard only via container observability; `cloudflare/wrangler.jsonc` enables it per container as well as top-level. Locally verified that FrankenPHP forwards `php://stderr` to container output; dashboard visibility after deploy is unconfirmed.
 
