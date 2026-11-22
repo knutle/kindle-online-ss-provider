@@ -33,7 +33,7 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 
 - The iCal URL comes from the `calendar` query param on `/dashboard.png` (validated, forwarded to `/`); `App\Services\CalendarEvents::upcoming($url)` fetches, caches and parses it with `sabre/vobject` (optional env `CALENDAR_EVENT_LIMIT`, `CALENDAR_CACHE_SECONDS`) and expands RRULEs. The `/` route passes `events` to the page as an Inertia prop, so the URL never reaches the browser JS.
 - The container only gets env vars the Worker passes in `cloudflare/worker/index.ts` (`envVars`). A new runtime env var needs: `Env` field + `envVars` entry there, a secret sync step in `.github/workflows/deploy-cloudflare.yml`, and a README mention (setup + Cloudflare sections). (No calendar env var exists any more.)
-- Five event rows overflow the 1601px PNG (footer clipped); screenshot mode trims `.kindle-clock:has(.kindle-events)` padding. Recheck the footer after changing event/clock sizing.
+- Events use a wrapping grid beside the clock (below it on narrow screens); screenshot mode trims `.kindle-clock:has(.kindle-events)` padding. Recheck the footer after changing event/clock sizing.
 - To render `/dashboard.png` offline: `PUPPETEER_EXECUTABLE_PATH` pointing at a wrapper script around system Chrome (`--host-resolver-rules="MAP api.open-meteo.com 127.0.0.1:8443" --ignore-certificate-errors`), a local HTTPS mock serving `oslo-weather.json`, and `PHP_CLI_SERVER_WORKERS=4 SESSION_DRIVER=file CACHE_STORE=file BROWSERSHOT_NO_SANDBOX=true php artisan serve` (after `npm ci && npm run build`).
 - Events sit in `.kindle-clock` beside `.kindle-clock-main` (the time) in `.kindle-events`, with no vertical divider.
 - sabre `VEvent` has no typed properties, so PHPStan rejects `$vevent->DTSTART`. Use `$vevent->select('DTSTART')[0]` with an `instanceof Property\ICalendar\DateTime` check.
@@ -71,6 +71,7 @@ Pitfalls seen:
 - Run `cd src && XDEBUG_MODE=off php artisan test --filter=Dashboard` (needs `composer install`, `.env` and `php artisan key:generate`). Redirect output through `grep -v Xdebug` or it floods.
 - `tests/TestCase.php` disables Vite for feature tests, so they do not require a built frontend manifest.
 - Run `npm run check` to check formatting and lint; use `npx vp fmt <paths>` to format affected files.
+- Run `cd src && npm run test:calendar-layout` for browser-based calendar layout checks. The test uses Puppeteer's headless shell (`npm run browser:install`); set `CHROME_PATH` to an existing Chrome executable if needed. CI disables Chrome's sandbox because GitHub's Ubuntu runner does not allow it.
 
 ## Workflow conventions
 
