@@ -33,7 +33,7 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 - sabre `VEvent` has no typed properties, so PHPStan rejects `$vevent->DTSTART`. Use `$vevent->select('DTSTART')[0]` with an `instanceof Property\ICalendar\DateTime` check.
 - `composer require` runs a `boost:update` post-update script that fails here. Run `composer update <pkg> --no-scripts` and pin a real constraint (not `*`).
 - Run PHPStan with `vendor/bin/phpstan analyse --memory-limit=1G` and fix types properly; no ignore comments.
-- Tests need a `.env` with an app key (`cp .env.example .env && php artisan key:generate`); delete it afterwards. Feature tests that render the Inertia page 500 without a built Vite manifest (pre-existing). `tests/Unit/CalendarEventsTest.php` covers parsing.
+- Tests need a `.env` with an app key (`cp .env.example .env && php artisan key:generate`); delete it afterwards. `tests/Unit/CalendarEventsTest.php` covers parsing.
 
 ## Verifying rendering (required for visual changes)
 
@@ -54,6 +54,15 @@ Pitfalls seen:
 - Put the fetch mock in a module imported first, written as plain TypeScript. An inline one-line mock had a paren error and caused a misleading "Failed to fetch" in the UI.
 - The tool sometimes reports the screenshot "does not exist" on first view; view it again.
 - Vite error overlays show up in the screenshot, so read it if the page looks wrong.
+- Outside screenshot mode (no `&screenshot=1`) the page is taller than 1000px. Capture the full height (e.g. `--window-size=1236,2000 --hide-scrollbars`) so the footer and search/location tools are visible; a short window crops the page.
+- `kill` needs numeric PIDs; list them with `ps aux | grep "[v]ite" | awk '{print $2}'` first (npm, sh and node processes all need stopping).
+- Verify both modes after a layout change: screenshot mode and normal mode.
+
+## Tests
+
+- Run `cd src && XDEBUG_MODE=off php artisan test --filter=Dashboard` (needs `composer install`, `.env` and `php artisan key:generate`). Redirect output through `grep -v Xdebug` or it floods.
+- `tests/TestCase.php` disables Vite for feature tests, so they do not require a built frontend manifest.
+- Run `npm run check` to check formatting and lint; use `npx vp fmt <paths>` to format affected files.
 
 ## Workflow conventions
 
@@ -72,3 +81,5 @@ Pitfalls seen:
 2. No gap between the quote's vertical divider and the horizontal divider above it.
 3. Upcoming calendar events (from the iCal URL) display to the right of the local time.
 4. No vertical divider between the clock and the calendar events.
+5. Screenshot-mode rows have 35px horizontal padding (was 20px). The forecast/quote row has that padding only at its outer edges, with a 15px gap on each side of the divider and no flex gap.
+6. Quote of the day is centred horizontally (`align-items: center; text-align: center`), in both screenshot and normal mode. The row's divider/gap rules in `.kindle-top-row`, `.kindle-weather-summary` and `.kindle-quote` apply in both modes; screenshot mode only overrides padding.
