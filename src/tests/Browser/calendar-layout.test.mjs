@@ -53,6 +53,7 @@ before(async () => {
                                 start: '2026-11-25T' + String(10 + i).padStart(2, '0') + ':00:00Z',
                                 end: null,
                                 allDay: false,
+                                calendarName: i % 2 === 0 ? 'Work' : 'Family',
                             }));
                             createRoot(document.getElementById('root')).render(React.createElement(Dashboard, { events }));
                         `;
@@ -138,6 +139,9 @@ async function checkLayout({ width, height, screenshot, count, name }) {
             });
             const title = document.querySelector('.kindle-next-event-title');
             const listTitle = document.querySelector('.kindle-event-text');
+            const calendarNames = [
+                ...document.querySelectorAll('.kindle-calendar-name span'),
+            ].map((item) => item.textContent);
             return {
                 dashboard: {
                     right: dashboard.right,
@@ -148,6 +152,7 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                 list: list && { left: list.left, right: list.right },
                 events,
                 nextEvent: title?.textContent,
+                calendarNames,
                 clockLabel: document.querySelector('.kindle-clock-label')
                     ?.textContent,
                 titleTruncated:
@@ -170,6 +175,12 @@ async function checkLayout({ width, height, screenshot, count, name }) {
         assert.equal(layout.events.length, Math.max(0, count - 1));
         assert.equal(layout.clockLabel, count ? 'NEXT EVENT' : 'LOCAL TIME');
         if (count) {
+            assert.deepEqual(
+                layout.calendarNames,
+                Array.from({ length: count }, (_, i) =>
+                    i % 2 === 0 ? 'Work' : 'Family',
+                ),
+            );
             assert.equal(
                 layout.nextEvent,
                 'Calendar event with a very long title that should be truncated '

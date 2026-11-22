@@ -6,14 +6,18 @@ use App\Services\CalendarEvents;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class CalendarEventsCacheTest extends TestCase
 {
-    private function ics(string $title): string
+    private function ics(string $title, string $start = '20261125T100000Z', ?string $name = null): string
     {
-        return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//test//EN\r\nBEGIN:VEVENT\r\nUID:{$title}\r\n"
-            ."DTSTART:20261125T100000Z\r\nDTEND:20261125T110000Z\r\nSUMMARY:{$title}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
+        $calendarName = $name === null ? '' : "X-WR-CALNAME:{$name}\r\n";
+
+        return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//test//EN\r\n{$calendarName}BEGIN:VEVENT\r\nUID:{$title}\r\n"
+            ."DTSTART:{$start}\r\nDTEND:".(new DateTimeImmutable(str_replace('Z', '', $start)))->modify('+1 hour')->format('Ymd\THis\Z')."\r\n"
+            ."SUMMARY:{$title}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
     }
 
     public function test_each_calendar_url_is_cached_separately(): void
@@ -67,5 +71,47 @@ class CalendarEventsCacheTest extends TestCase
         $events = (new CalendarEvents)->upcoming('webcal://c.example.com/x.ics', new DateTimeImmutable('2026-11-22T12:00:00Z'));
 
         $this->assertSame(['Gamma'], array_column($events, 'title'));
+    }
+
+    public function test_it_merges_multiple_calendars_and_keeps_each_calendar_name(): void
+    {
+        Cache::flush();
+        Http::fake([
+            'https://a.example.com/*' => Http::response($this->ics('Alpha later', '20261125T120000Z', 'Work')),
+            'https://b.example.com/*' => Http::response($this->ics('Beta first', '20261125T090000Z', 'Family')),
+        ]);
+
+        $overview = (new CalendarEvents)->overview(
+            ['https://a.example.com/x.ics', 'https://b.example.com/x.ics'],
+            new DateTimeImmutable('2026-11-22T12:00:00Z'),
+        );
+
+        $this->assertTrue($overview['configured']);
+        $this->assertNull($overview['name']);
+        $this->assertSame(['Beta first', 'Alpha later'], array_column($overview['events'], 'title'));
+        $this->assertSame(['Family', 'Work'], array_column($overview['events'], 'calendarName'));
+        Http::assertSentCount(2);
+    }
+
+    public function test_dashboard_route_loads_multiple_calendar_parameters(): void
+    {
+        Cache::flush();
+        Http::fake([
+            'https://a.example.com/*' => Http::response($this->ics('Alpha', '20261125T100000Z', 'Work')),
+            'https://b.example.com/*' => Http::response($this->ics('Beta', '20261125T090000Z', 'Family')),
+        ]);
+
+        $this->get(
+            '/?calendar%5B%5D='.rawurlencode('https://a.example.com/x.ics')
+            .'&calendar%5B%5D='.rawurlencode('https://b.example.com/x.ics'),
+        )->assertInertia(fn (Assert $page) => $page
+            ->component('weather-dashboard')
+            ->has('events', 2)
+            ->where('events.0.title', 'Beta')
+            ->where('events.0.calendarName', 'Family')
+            ->where('events.1.title', 'Alpha')
+            ->where('events.1.calendarName', 'Work'));
+
+        Http::assertSentCount(2);
     }
 }

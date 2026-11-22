@@ -90,4 +90,58 @@ class DashboardImageTest extends TestCase
         $this->get('/dashboard.png?latitude=59.91&longitude=10.75&calendar='.rawurlencode($calendar))
             ->assertOk();
     }
+
+    public function test_it_forwards_multiple_calendar_urls_to_the_rendered_dashboard(): void
+    {
+        $calendars = [
+            'https://example.com/work.ics?token=a&b=c',
+            'webcal://example.com/family.ics',
+        ];
+
+        $this->mock(DashboardImageRenderer::class)
+            ->shouldReceive('render')
+            ->once()
+            ->withArgs(function (string $url) use ($calendars): bool {
+                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+                return ($query['calendar'] ?? null) === $calendars;
+            })
+            ->andReturn('png');
+
+        $query = http_build_query([
+            'latitude' => 59.91,
+            'longitude' => 10.75,
+            'calendar' => $calendars,
+        ], '', '&', PHP_QUERY_RFC3986);
+
+        $this->get('/dashboard.png?'.$query)->assertOk();
+    }
+
+    public function test_it_accepts_multiple_calendar_bracket_parameters(): void
+    {
+        $calendars = [
+            'webcal://first.example.com/calendar.ics',
+            'webcal://second.example.com/calendar.ics',
+            'https://holidays.example.com/calendar.ics',
+        ];
+
+        $this->mock(DashboardImageRenderer::class)
+            ->shouldReceive('render')
+            ->once()
+            ->withArgs(function (string $url) use ($calendars): bool {
+                parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+
+                return ($query['calendar'] ?? null) === $calendars;
+            })
+            ->andReturn('png');
+
+        $query = 'latitude=59.91&longitude=10.75&'.implode('&', array_map(
+            fn (string $calendar): string => 'calendar%5B%5D='.rawurlencode($calendar),
+            $calendars,
+        ));
+
+        $this->get('/dashboard.png?'.$query)
+            ->assertOk()
+            ->assertSee('png', false);
+    }
 }

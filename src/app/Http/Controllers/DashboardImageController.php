@@ -21,14 +21,24 @@ class DashboardImageController extends Controller
 
     public function __invoke(Request $request, DashboardImageRenderer $renderer): Response
     {
-        $validator = Validator::make($request->query(), [
+        $query = $request->query();
+        $calendar = $query['calendar'] ?? null;
+
+        $query['calendars'] = is_array($calendar)
+            ? array_values($calendar)
+            : (filled($calendar) ? [$calendar] : []);
+
+        $rules = [
             'city' => ['nullable', 'string', 'max:120'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'label' => ['nullable', 'string', 'max:120'],
             'timezone' => ['nullable', 'timezone'],
-            'calendar' => ['nullable', 'string', 'max:2000'],
-        ]);
+            'calendars' => ['array', 'max:20'],
+            'calendars.*' => ['required', 'string', 'max:2000'],
+        ];
+
+        $validator = Validator::make($query, $rules);
 
         if ($validator->fails()) {
             return response($validator->errors()->first(), 422, [
@@ -61,7 +71,9 @@ class DashboardImageController extends Controller
             'longitude' => $location['longitude'],
             'label' => $location['name'],
             'timezone' => $input['timezone'] ?? null,
-            'calendar' => $input['calendar'] ?? null,
+            'calendar' => count($input['calendars']) === 1
+                ? $input['calendars'][0]
+                : $input['calendars'],
             'screenshot' => '1',
         ], '', '&', PHP_QUERY_RFC3986);
 

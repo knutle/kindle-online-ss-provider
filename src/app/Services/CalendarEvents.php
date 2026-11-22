@@ -19,49 +19,59 @@ use Throwable;
 class CalendarEvents
 {
     /**
-     * @return list<array{title: string, start: string, end: string|null, allDay: bool}>
+     * @param  string|array<array-key, mixed>|null  $urls
+     * @return list<array{title: string, start: string, end: string|null, allDay: bool, calendarName: string|null}>
      */
-    public function upcoming(?string $url, ?DateTimeImmutable $now = null, ?int $limit = null): array
+    public function upcoming(string|array|null $urls, ?DateTimeImmutable $now = null, ?int $limit = null): array
     {
-        return $this->overview($url, $now, $limit)['events'];
+        return $this->overview($urls, $now, $limit)['events'];
     }
 
     /**
-     * @return array{configured: bool, name: string|null, events: list<array{title: string, start: string, end: string|null, allDay: bool}>}
+     * @param  string|array<array-key, mixed>|null  $urls
+     * @return array{configured: bool, name: string|null, events: list<array{title: string, start: string, end: string|null, allDay: bool, calendarName: string|null}>}
      */
-    public function overview(?string $url, ?DateTimeImmutable $now = null, ?int $limit = null): array
+    public function overview(string|array|null $urls, ?DateTimeImmutable $now = null, ?int $limit = null): array
     {
-        $url = filled($url) ? preg_replace('#^webcals?://#i', 'https://', trim($url)) : null;
+        $urls = $this->normalizeUrls($urls);
 
-        if (! $url || ! preg_match('#^https?://#i', $url)) {
+        if ($urls === []) {
             return ['configured' => false, 'name' => null, 'events' => []];
         }
 
         $now ??= new DateTimeImmutable;
         $limit ??= (int) config('services.calendar.limit', 5);
+        $events = [];
+        $names = [];
 
-        try {
-            $body = Cache::remember(
-                'calendar.ical.'.sha1($url),
-                (int) config('services.calendar.cache_seconds', 300),
-                fn () => Http::timeout(10)->get($url)->throw()->body(),
-            );
-            $calendar = Reader::read($body, Reader::OPTION_FORGIVING);
+        foreach ($urls as $url) {
+            $overview = $this->overviewUrl($url, $now, $limit);
 
-            if (! $calendar instanceof VCalendar) {
-                return ['configured' => true, 'name' => null, 'events' => []];
+            if ($overview['name'] !== null) {
+                $names[$overview['name']] = true;
             }
 
-            return [
-                'configured' => true,
-                'name' => $this->name($calendar),
-                'events' => $this->events($calendar, $now, $limit),
-            ];
-        } catch (Throwable $e) {
-            report($e);
-
-            return ['configured' => true, 'name' => null, 'events' => []];
+            foreach ($overview['events'] as $event) {
+                $events[] = [...$event, 'calendarName' => $overview['name']];
+            }
         }
+
+        usort(
+            $events,
+            function ($a, $b): int {
+                $startOrder = strtotime($a['start']) <=> strtotime($b['start']);
+
+                return $startOrder !== 0
+                    ? $startOrder
+                    : strcmp($a['title'], $b['title']);
+            },
+        );
+
+        return [
+            'configured' => true,
+            'name' => count($names) === 1 ? array_key_first($names) : null,
+            'events' => array_slice($events, 0, $limit),
+        ];
     }
 
     /**
@@ -72,6 +82,58 @@ class CalendarEvents
         $calendar = Reader::read($ical, Reader::OPTION_FORGIVING);
 
         return $calendar instanceof VCalendar ? $this->events($calendar, $now, $limit) : [];
+    }
+
+    /**
+     * @param  string|array<array-key, mixed>|null  $urls
+     * @return list<string>
+     */
+    private function normalizeUrls(string|array|null $urls): array
+    {
+        $urls = is_string($urls) ? [$urls] : ($urls ?? []);
+        $normalized = [];
+
+        foreach ($urls as $url) {
+            if (! is_string($url) || ! filled($url)) {
+                continue;
+            }
+
+            $url = preg_replace('#^webcals?://#i', 'https://', trim($url));
+
+            if ($url !== null && preg_match('#^https?://#i', $url)) {
+                $normalized[$url] = true;
+            }
+        }
+
+        return array_keys($normalized);
+    }
+
+    /**
+     * @return array{name: string|null, events: list<array{title: string, start: string, end: string|null, allDay: bool}>}
+     */
+    private function overviewUrl(string $url, DateTimeImmutable $now, int $limit): array
+    {
+        try {
+            $body = Cache::remember(
+                'calendar.ical.'.sha1($url),
+                (int) config('services.calendar.cache_seconds', 300),
+                fn () => Http::timeout(10)->get($url)->throw()->body(),
+            );
+            $calendar = Reader::read($body, Reader::OPTION_FORGIVING);
+
+            if (! $calendar instanceof VCalendar) {
+                return ['name' => null, 'events' => []];
+            }
+
+            return [
+                'name' => $this->name($calendar),
+                'events' => $this->events($calendar, $now, $limit),
+            ];
+        } catch (Throwable $e) {
+            report($e);
+
+            return ['name' => null, 'events' => []];
+        }
     }
 
     /**
