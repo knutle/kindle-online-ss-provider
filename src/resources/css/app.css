@@ -217,10 +217,49 @@
 
 .kindle-clock {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    gap: clamp(1.5rem, 5vw, 3rem);
     border-bottom: 1px solid #aaa;
     padding: clamp(1.25rem, 4vw, 3rem) 0;
+}
+
+.kindle-clock-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.kindle-events {
+    min-width: 0;
+    flex: 1;
+}
+
+.kindle-events ul {
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.kindle-events li {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #aaa;
+    padding: 0.45rem 0;
+    font-size: 1.05rem;
+}
+
+.kindle-event-when {
+    font-family: Arial, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.kindle-event-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .kindle-clock-label,

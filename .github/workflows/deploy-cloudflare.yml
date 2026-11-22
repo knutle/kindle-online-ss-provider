@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       APP_KEY: ${{ secrets.APP_KEY }}
+      CALENDAR_ICAL_URL: ${{ secrets.CALENDAR_ICAL_URL }}
     defaults:
       run:
         working-directory: cloudflare
@@ -44,6 +45,13 @@ jobs:
       - name: Sync APP_KEY secret
         if: ${{ env.APP_KEY != '' }}
         run: echo "$APP_KEY" | npx wrangler secret put APP_KEY
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Sync CALENDAR_ICAL_URL secret
+        if: ${{ env.CALENDAR_ICAL_URL != '' }}
+        run: echo "$CALENDAR_ICAL_URL" | npx wrangler secret put CALENDAR_ICAL_URL
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

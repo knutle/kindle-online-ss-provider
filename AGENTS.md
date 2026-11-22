@@ -25,6 +25,16 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 - The first local container build pulls its base images and installs PHP/Node dependencies, so allow several minutes and wait for Wrangler's ready message before testing the local endpoint.
 - Verify the running app with `curl -i http://localhost:8787/up` and render the PNG with `curl -o /tmp/dashboard.png 'http://localhost:8787/dashboard.png?latitude=59.91&longitude=10.75&label=Oslo'`; a successful image response is `image/png` at 1236x1601.
 
+## Calendar events
+
+- `CALENDAR_ICAL_URL` (plus optional `CALENDAR_EVENT_LIMIT`, `CALENDAR_CACHE_SECONDS`) feeds `App\Services\CalendarEvents`, which fetches, caches and parses the iCal with `sabre/vobject` and expands RRULEs. The `/` route passes `events` to the page as an Inertia prop; the URL never reaches the browser, and the PNG renderer gets the events through the same route.
+- The container only gets env vars the Worker passes in `cloudflare/worker/index.ts` (`envVars`). A new runtime env var needs: `Env` field + `envVars` entry there, a secret sync step in `.github/workflows/deploy-cloudflare.yml`, and a README mention (setup + Cloudflare sections). `CALENDAR_ICAL_URL` is wired this way.
+- Events sit in `.kindle-clock` beside `.kindle-clock-main` (the time) in `.kindle-events`, with no vertical divider.
+- sabre `VEvent` has no typed properties, so PHPStan rejects `$vevent->DTSTART`. Use `$vevent->select('DTSTART')[0]` with an `instanceof Property\ICalendar\DateTime` check.
+- `composer require` runs a `boost:update` post-update script that fails here. Run `composer update <pkg> --no-scripts` and pin a real constraint (not `*`).
+- Run PHPStan with `vendor/bin/phpstan analyse --memory-limit=1G` and fix types properly; no ignore comments.
+- Tests need a `.env` with an app key (`cp .env.example .env && php artisan key:generate`); delete it afterwards. Feature tests that render the Inertia page 500 without a built Vite manifest (pre-existing). `tests/Unit/CalendarEventsTest.php` covers parsing.
+
 ## Verifying rendering (required for visual changes)
 
 `npm ci` is needed first (`node_modules` is absent in a fresh checkout). A full `vite build` fails without generated Wayfinder routes, so use a throwaway harness:
@@ -38,6 +48,9 @@ Living document. Add lessons from each task; fix anything that turns out wrong.
 
 Pitfalls seen:
 
+- The mock must match the fields the page reads: `current` (`temperature_2m`, `apparent_temperature`, `relative_humidity_2m`, `wind_speed_10m`, `precipitation`, `weather_code`, `is_day`) and `daily` (`time`, `weather_code`, `temperature_2m_max/min`, `precipitation_probability_max`). A wrong field gives "Cannot read properties of undefined".
+- Pass sample `events` as a prop to the page in `main.tsx` when checking the calendar.
+- To stop vite, list PIDs with `ps aux | grep "[v]ite --config" | awk '{print $2}'` in one call, then `kill <pid> <pid>` in another; `kill $(...)` is rejected.
 - Put the fetch mock in a module imported first, written as plain TypeScript. An inline one-line mock had a paren error and caused a misleading "Failed to fetch" in the UI.
 - The tool sometimes reports the screenshot "does not exist" on first view; view it again.
 - Vite error overlays show up in the screenshot, so read it if the page looks wrong.
@@ -52,6 +65,8 @@ Pitfalls seen:
 
 ## Workflow conventions
 
+- Before opening a PR, walk the template checklist: README/docs, rendered image for layout changes, and Cloudflare/deploy impact (secrets, worker, workflow). Tick items only when actually handled.
+
 - Keep changes surgical. Don't commit screenshots or harness files.
 - Branch from `main`, push, and open the PR with `gh pr create --base main --head <branch>` (push first, or `gh` aborts).
 - Follow `.github/PULL_REQUEST_TEMPLATE.md` (Summary, Changes, Verification, Not verified / notes, Checklist) when writing PR descriptions.
@@ -63,5 +78,7 @@ Pitfalls seen:
 
 1. Quote of the day spans the full row height (divider to divider) next to the forecast heading; rows from humidity/wind/precipitation down are 100% width.
 2. No gap between the quote's vertical divider and the horizontal divider above it.
-3. Screenshot-mode rows have 35px horizontal padding (was 20px). The forecast/quote row has that padding only at its outer edges, with a 15px gap on each side of the divider and no flex gap.
-4. Quote of the day is centred horizontally (`align-items: center; text-align: center`), in both screenshot and normal mode. The row's divider/gap rules in `.kindle-top-row`, `.kindle-weather-summary` and `.kindle-quote` apply in both modes; screenshot mode only overrides padding.
+3. Upcoming calendar events (from the iCal URL) display to the right of the local time.
+4. No vertical divider between the clock and the calendar events.
+5. Screenshot-mode rows have 35px horizontal padding (was 20px). The forecast/quote row has that padding only at its outer edges, with a 15px gap on each side of the divider and no flex gap.
+6. Quote of the day is centred horizontally (`align-items: center; text-align: center`), in both screenshot and normal mode. The row's divider/gap rules in `.kindle-top-row`, `.kindle-weather-summary` and `.kindle-quote` apply in both modes; screenshot mode only overrides padding.

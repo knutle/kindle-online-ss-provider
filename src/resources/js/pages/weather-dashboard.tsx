@@ -43,6 +43,13 @@ type Forecast = {
     timezone: string;
 };
 
+type CalendarEvent = {
+    title: string;
+    start: string;
+    end: string | null;
+    allDay: boolean;
+};
+
 type WeatherResponse = {
     timezone?: string;
     current: {
@@ -210,7 +217,32 @@ async function fetchForecast(location: WeatherLocation): Promise<Forecast> {
     };
 }
 
-export default function WeatherDashboard() {
+function formatEventTime(event: CalendarEvent, timeZone?: string): string {
+    const start = new Date(event.start);
+
+    if (event.allDay) {
+        return new Intl.DateTimeFormat(undefined, {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+            timeZone: "UTC",
+        }).format(new Date(`${event.start.slice(0, 10)}T00:00:00Z`));
+    }
+
+    return new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        hourCycle: "h23",
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZone,
+    }).format(start);
+}
+
+export default function WeatherDashboard({
+    events = [],
+}: {
+    events?: CalendarEvent[];
+}) {
     const [now, setNow] = useState<Date | null>(null);
     const [location, setLocation] = useState<WeatherLocation | null>(null);
     const [forecast, setForecast] = useState<Forecast | null>(null);
@@ -440,17 +472,39 @@ export default function WeatherDashboard() {
                     className="kindle-clock"
                     aria-label="Current date and time"
                 >
-                    <p className="kindle-clock-label">LOCAL TIME</p>
-                    <time dateTime={now?.toISOString()}>
-                        {now
-                            ? new Intl.DateTimeFormat(undefined, {
-                                  hourCycle: "h23",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  timeZone: forecast?.timezone,
-                              }).format(now)
-                            : "--:--"}
-                    </time>
+                    <div className="kindle-clock-main">
+                        <p className="kindle-clock-label">LOCAL TIME</p>
+                        <time dateTime={now?.toISOString()}>
+                            {now
+                                ? new Intl.DateTimeFormat(undefined, {
+                                      hourCycle: "h23",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      timeZone: forecast?.timezone,
+                                  }).format(now)
+                                : "--:--"}
+                        </time>
+                    </div>
+                    {events.length > 0 && (
+                        <div className="kindle-events">
+                            <p className="kindle-clock-label">UPCOMING</p>
+                            <ul>
+                                {events.map((event) => (
+                                    <li key={`${event.start}-${event.title}`}>
+                                        <span className="kindle-event-when">
+                                            {formatEventTime(
+                                                event,
+                                                forecast?.timezone,
+                                            )}
+                                        </span>
+                                        <span className="kindle-event-title">
+                                            {event.title}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </section>
 
                 <div className="kindle-main-row">

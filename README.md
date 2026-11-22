@@ -3,7 +3,8 @@
 This repository contains a Laravel weather dashboard that can also serve a
 Kindle-sized PNG image of the dashboard. The interactive dashboard lets you
 search for a city or use your device location, then shows current conditions
-and a five-day forecast. Weather data is provided by Open-Meteo.
+and a five-day forecast. Weather data is provided by Open-Meteo. If an iCal
+feed is configured, upcoming calendar events are shown beside the local time.
 
 The Laravel application is in [`src/`](src/). Its
 `/dashboard.png` endpoint renders the dashboard in a headless browser at
@@ -50,17 +51,25 @@ headless Chrome browser used for PNG rendering, and builds frontend assets.
 SQLite is configured by default. Once the development server is running, visit
 <http://localhost:8000>.
 
+## Calendar events
+
+Set `CALENDAR_ICAL_URL` in `src/.env` to an iCal (`.ics`) feed URL to list
+upcoming events (including recurring ones, up to 60 days ahead) to the right of
+the local time. Without it, no events are shown. Optional settings:
+`CALENDAR_EVENT_LIMIT` (default `5`) and `CALENDAR_CACHE_SECONDS` (default
+`300`). The feed is fetched server-side, so the URL is never sent to the browser.
+
 ## Dependencies
 
 The application is built with Laravel 13, PHP, Inertia.js, React, TypeScript,
 and Vite Plus. Important runtime dependencies include:
 
 - **PHP:** Laravel Framework, Inertia Laravel, Laravel Fortify, Laravel
-  Wayfinder, and Spatie Browsershot.
+  Wayfinder, Spatie Browsershot, and sabre/vobject (iCal parsing).
 - **JavaScript:** React, Inertia React, Vite Plus, Tailwind CSS, and Puppeteer.
   Puppeteer supplies the headless Chrome browser used by Browsershot.
 - **External service:** Open-Meteo Forecast and Geocoding APIs; no API key is
-  configured by this project.
+  configured by this project. An optional iCal feed supplies calendar events.
 
 The Composer and npm dependency manifests and lock files are in `src/`.
 
@@ -74,6 +83,7 @@ small Worker (`cloudflare/worker/index.ts`, configured in `cloudflare/wrangler.j
 cd cloudflare
 npm install
 npx wrangler secret put APP_KEY   # value from `php artisan key:generate --show`
+npx wrangler secret put CALENDAR_ICAL_URL   # optional, enables calendar events
 npx wrangler deploy               # builds cloudflare/Dockerfile and deploys
 ```
 
@@ -82,7 +92,8 @@ npx wrangler deploy               # builds cloudflare/Dockerfile and deploys
 `.github/workflows/deploy-cloudflare.yml` deploys on pushes to `main` (or
 manually via *Run workflow*). Add these repository secrets: `CLOUDFLARE_API_TOKEN`
 (with Workers and Containers edit permissions), `CLOUDFLARE_ACCOUNT_ID`, and
-optionally `APP_KEY`, which is synced as the Worker secret.
+optionally `APP_KEY` and `CALENDAR_ICAL_URL`, which are synced as Worker
+secrets.
 
 Notes:
 
