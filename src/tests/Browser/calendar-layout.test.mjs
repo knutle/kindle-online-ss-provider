@@ -62,7 +62,7 @@ before(async () => {
                 },
                 configureServer(vite) {
                     vite.middlewares.use((request, response, next) => {
-                        if (request.url?.startsWith('/?')) {
+                        if (request.url?.startsWith('/dashboard?')) {
                             response.setHeader('Content-Type', 'text/html');
                             response.end(
                                 '<div id="root"></div><script type="module" src="/@id/virtual:calendar-test"></script>',
@@ -136,7 +136,9 @@ async function checkLayout({
             events: String(count),
             ...(screenshot ? { screenshot: '1' } : {}),
         });
-        await page.goto(`${baseUrl}/?${query}`, { waitUntil: 'networkidle0' });
+        await page.goto(`${baseUrl}/dashboard?${query}`, {
+            waitUntil: 'networkidle0',
+        });
         await page.waitForSelector(
             screenshot
                 ? 'main[data-screenshot-ready="true"]'

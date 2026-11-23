@@ -18,6 +18,7 @@ class DashboardImageTest extends TestCase
 
                 return $width === 1236
                     && $height === 1601
+                    && parse_url($url, PHP_URL_PATH) === '/dashboard'
                     && ($query['latitude'] ?? null) === '59.91'
                     && ($query['longitude'] ?? null) === '10.75'
                     && ($query['label'] ?? null) === 'Oslo'
