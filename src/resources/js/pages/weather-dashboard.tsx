@@ -219,16 +219,27 @@ async function fetchForecast(location: WeatherLocation): Promise<Forecast> {
     };
 }
 
-function formatEventTime(event: CalendarEvent, timeZone?: string): string {
-    const start = new Date(event.start);
+function formatEventDate(event: CalendarEvent, timeZone?: string): string {
+    const start = event.allDay
+        ? new Date(`${event.start.slice(0, 10)}T00:00:00Z`)
+        : new Date(event.start);
 
+    return new Intl.DateTimeFormat(undefined, {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        timeZone: event.allDay ? 'UTC' : timeZone,
+    }).format(start);
+}
+
+function formatEventTime(event: CalendarEvent, timeZone?: string): string {
     if (event.allDay) {
-        return new Intl.DateTimeFormat(undefined, {
+        const day = new Intl.DateTimeFormat(undefined, {
             weekday: 'short',
-            day: 'numeric',
-            month: 'short',
             timeZone: 'UTC',
         }).format(new Date(`${event.start.slice(0, 10)}T00:00:00Z`));
+
+        return `${day} all day`;
     }
 
     return new Intl.DateTimeFormat(undefined, {
@@ -237,7 +248,7 @@ function formatEventTime(event: CalendarEvent, timeZone?: string): string {
         hour: '2-digit',
         minute: '2-digit',
         timeZone,
-    }).format(start);
+    }).format(new Date(event.start));
 }
 
 function formatEventDay(
@@ -583,15 +594,23 @@ export default function WeatherDashboard({
                                         key={`${event.start}-${event.title}-${event.calendarName}`}
                                     >
                                         <div className="kindle-event-card">
-                                            <span className="kindle-event-when">
-                                                {formatEventTime(
+                                            <span className="kindle-event-date-header">
+                                                {formatEventDate(
                                                     event,
                                                     forecast?.timezone,
                                                 )}
                                             </span>
-                                            <span className="kindle-event-title">
-                                                <span className="kindle-event-text">
-                                                    {event.title}
+                                            <span className="kindle-event-body">
+                                                <span className="kindle-event-when">
+                                                    {formatEventTime(
+                                                        event,
+                                                        forecast?.timezone,
+                                                    )}
+                                                </span>
+                                                <span className="kindle-event-title">
+                                                    <span className="kindle-event-text">
+                                                        {event.title}
+                                                    </span>
                                                 </span>
                                             </span>
                                         </div>

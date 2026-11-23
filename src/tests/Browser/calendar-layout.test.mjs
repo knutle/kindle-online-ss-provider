@@ -52,7 +52,7 @@ before(async () => {
                                 title: i < 2 ? 'Calendar event with a very long title that should be truncated '.repeat(3).trim() : 'Calendar event ' + (i + 1),
                                 start: '2026-11-25T' + String(10 + i).padStart(2, '0') + ':00:00Z',
                                 end: null,
-                                allDay: false,
+                                allDay: i === 1,
                                 calendarName: i % 2 === 0 ? 'Work' : 'Family',
                             }));
                             createRoot(document.getElementById('root')).render(React.createElement(Dashboard, { events }));
@@ -135,7 +135,18 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                 ...document.querySelectorAll('.kindle-events li'),
             ].map((item) => {
                 const rect = item.getBoundingClientRect();
-                return { left: rect.left, right: rect.right, top: rect.top };
+                const header = item.querySelector('.kindle-event-date-header');
+                const metadata = item.querySelector('.kindle-event-when');
+                const description = item.querySelector('.kindle-event-text');
+                return {
+                    left: rect.left,
+                    right: rect.right,
+                    top: rect.top,
+                    header: header?.textContent,
+                    metadata: metadata?.textContent,
+                    metadataBottom: metadata?.getBoundingClientRect().bottom,
+                    descriptionTop: description?.getBoundingClientRect().top,
+                };
             });
             const title = document.querySelector('.kindle-next-event-title');
             const listTitle = document.querySelector('.kindle-event-text');
@@ -212,6 +223,32 @@ async function checkLayout({ width, height, screenshot, count, name }) {
             assert.ok(
                 layout.listTitleTruncated,
                 'long upcoming event titles must wrap and clamp to four lines',
+            );
+            assert.match(
+                layout.events[0].header,
+                /Nov.*25|25.*Nov/,
+                'event headers must show the calendar date',
+            );
+            assert.match(
+                layout.events[0].header,
+                /Wed/,
+                'event headers must show the weekday',
+            );
+            assert.match(
+                layout.events[1].metadata,
+                /Wed.*\d{2}:\d{2}/,
+                'event bodies must show the weekday and time',
+            );
+            assert.match(
+                layout.events[0].metadata,
+                /Wed all day/,
+                'all-day event bodies must show the weekday and all-day label',
+            );
+            assert.ok(
+                layout.events.every(
+                    (event) => event.metadataBottom < event.descriptionTop,
+                ),
+                'event metadata must appear above the description',
             );
         }
         for (const event of layout.events) {
