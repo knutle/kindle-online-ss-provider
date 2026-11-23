@@ -48,9 +48,10 @@ before(async () => {
                             import '/resources/css/app.css';
                             import Dashboard from '/resources/js/pages/weather-dashboard.tsx';
                             const count = Number(new URLSearchParams(location.search).get('events'));
+                            const days = ['23', '23', '24', '25', '28'];
                             const events = Array.from({ length: count }, (_, i) => ({
                                 title: i < 2 ? 'Calendar event with a very long title that should be truncated '.repeat(3).trim() : 'Calendar event ' + (i + 1),
-                                start: '2026-11-25T' + String(10 + i).padStart(2, '0') + ':00:00Z',
+                                start: '2026-11-' + days[i] + 'T' + String(10 + i).padStart(2, '0') + ':00:00Z',
                                 end: null,
                                 allDay: i === 1,
                                 calendarName: i % 2 === 0 ? 'Work' : 'Family',
@@ -90,10 +91,31 @@ after(async () => {
     await server?.close();
 });
 
-async function checkLayout({ width, height, screenshot, count, name }) {
+async function checkLayout({
+    width,
+    height,
+    screenshot,
+    count,
+    name,
+    now = '2026-11-23T12:00:00Z',
+}) {
     const page = await browser.newPage();
     try {
         await page.setViewport({ width, height });
+        await page.evaluateOnNewDocument((now) => {
+            const RealDate = Date;
+            const fixedNow = new RealDate(now).valueOf();
+            class FixedDate extends RealDate {
+                constructor(...args) {
+                    if (args.length === 0) super(fixedNow);
+                    else super(...args);
+                }
+                static now() {
+                    return fixedNow;
+                }
+            }
+            window.Date = FixedDate;
+        }, now);
         await page.setRequestInterception(true);
         page.on('request', (request) => {
             if (request.url().startsWith('https://api.open-meteo.com/')) {
@@ -137,13 +159,21 @@ async function checkLayout({ width, height, screenshot, count, name }) {
                 const rect = item.getBoundingClientRect();
                 const header = item.querySelector('.kindle-event-date-header');
                 const metadata = item.querySelector('.kindle-event-when');
+                const day = metadata?.firstElementChild;
+                const time = item.querySelector('.kindle-event-time');
                 const description = item.querySelector('.kindle-event-text');
                 return {
                     left: rect.left,
                     right: rect.right,
                     top: rect.top,
                     header: header?.textContent,
-                    metadata: metadata?.textContent,
+                    day: day?.textContent,
+                    time: time?.textContent,
+                    dayBottom: day?.getBoundingClientRect().bottom,
+                    timeTop: time?.getBoundingClientRect().top,
+                    daySize: day && parseFloat(getComputedStyle(day).fontSize),
+                    timeSize:
+                        time && parseFloat(getComputedStyle(time).fontSize),
                     metadataBottom: metadata?.getBoundingClientRect().bottom,
                     descriptionTop: description?.getBoundingClientRect().top,
                 };
@@ -226,29 +256,39 @@ async function checkLayout({ width, height, screenshot, count, name }) {
             );
             assert.match(
                 layout.events[0].header,
-                /Nov.*25|25.*Nov/,
+                /Nov.*23|23.*Nov/,
                 'event headers must show the calendar date',
             );
             assert.match(
                 layout.events[0].header,
-                /Wed/,
+                /Mon/,
                 'event headers must show the weekday',
             );
-            assert.match(
-                layout.events[1].metadata,
-                /Wed.*\d{2}:\d{2}/,
-                'event bodies must show the weekday and time',
-            );
-            assert.match(
-                layout.events[0].metadata,
-                /Wed all day/,
-                'all-day event bodies must show the weekday and all-day label',
+            assert.deepEqual(
+                layout.events.map((event) => [event.day, event.time]),
+                (now === '2026-11-23T23:30:00Z'
+                    ? [
+                          ['Monday', 'All day'],
+                          ['Today', '13:00'],
+                          ['Tomorrow', '14:00'],
+                          ['Saturday', '15:00'],
+                      ]
+                    : [
+                          ['Today', 'All day'],
+                          ['Tomorrow', '13:00'],
+                          ['Wednesday', '14:00'],
+                          ['Saturday', '15:00'],
+                      ]
+                ).slice(0, count - 1),
             );
             assert.ok(
                 layout.events.every(
-                    (event) => event.metadataBottom < event.descriptionTop,
+                    (event) =>
+                        event.dayBottom <= event.timeTop &&
+                        event.metadataBottom <= event.descriptionTop &&
+                        event.timeSize === event.daySize * 1.5,
                 ),
-                'event metadata must appear above the description',
+                'the 50% larger time must be on its own line between the day and description',
             );
         }
         for (const event of layout.events) {
@@ -304,11 +344,23 @@ void test('dashboards with one or no events remain usable', async () => {
         count: 1,
         name: 'calendar-one',
     });
+
     await checkLayout({
         width: 1236,
         height: 1601,
         screenshot: true,
         count: 0,
         name: 'calendar-none',
+    });
+});
+
+void test('relative days use the forecast timezone across midnight', async () => {
+    await checkLayout({
+        width: 1236,
+        height: 1601,
+        screenshot: true,
+        count: 5,
+        name: 'calendar-timezone',
+        now: '2026-11-23T23:30:00Z',
     });
 });

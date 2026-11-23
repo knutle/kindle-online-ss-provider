@@ -64,10 +64,11 @@ can be supplied with repeated `calendar[]` parameters, for example
 merged chronologically, including recurring ones up to 60 days ahead. The next
 event replaces the local time and is shown as a calendar-style card (a large
 "Today", "Tomorrow" or date, with the time below). Up to four more events appear
-beside it as smaller cards in one row. If a feed has a name (`X-WR-CALNAME`), it
-is shown beneath each of that feed's cards. If the feeds have no upcoming events
-or cannot be loaded, the card says so; without a `calendar` parameter the local
-time is shown.
+beside it as smaller cards in one row, with the day and time (or "All day") on
+separate lines above each title. The day is "Today", "Tomorrow", or the full
+weekday name. If a feed has a name (`X-WR-CALNAME`), it is shown beneath each of
+that feed's cards. If the feeds have no upcoming events or cannot be loaded, the
+card says so; without a `calendar` parameter the local time is shown.
 Optional `src/.env` settings:
 `CALENDAR_EVENT_LIMIT` (default `5`) and `CALENDAR_CACHE_SECONDS` (default
 `300`). The feed is fetched server-side. The URL is part of the request URL, so treat

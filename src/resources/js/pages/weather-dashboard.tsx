@@ -255,6 +255,7 @@ function formatEventDay(
     event: CalendarEvent,
     now: Date | null,
     timeZone?: string,
+    weekday = false,
 ): string {
     const eventDay = event.allDay
         ? new Date(`${event.start.slice(0, 10)}T00:00:00Z`)
@@ -278,11 +279,23 @@ function formatEventDay(
         }
     }
 
+    return new Intl.DateTimeFormat(
+        undefined,
+        weekday
+            ? { weekday: 'long', timeZone: eventZone }
+            : { day: 'numeric', month: 'short', timeZone: eventZone },
+    ).format(eventDay);
+}
+
+function formatUpcomingEventTime(event: CalendarEvent, timeZone?: string) {
+    if (event.allDay) return 'All day';
+
     return new Intl.DateTimeFormat(undefined, {
-        day: 'numeric',
-        month: 'short',
-        timeZone: eventZone,
-    }).format(eventDay);
+        hourCycle: 'h23',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone,
+    }).format(new Date(event.start));
 }
 
 export default function WeatherDashboard({
@@ -602,10 +615,20 @@ export default function WeatherDashboard({
                                             </span>
                                             <span className="kindle-event-body">
                                                 <span className="kindle-event-when">
-                                                    {formatEventTime(
-                                                        event,
-                                                        forecast?.timezone,
-                                                    )}
+                                                    <span>
+                                                        {formatEventDay(
+                                                            event,
+                                                            now,
+                                                            forecast?.timezone,
+                                                            true,
+                                                        )}
+                                                    </span>
+                                                    <span className="kindle-event-time">
+                                                        {formatUpcomingEventTime(
+                                                            event,
+                                                            forecast?.timezone,
+                                                        )}
+                                                    </span>
                                                 </span>
                                                 <span className="kindle-event-title">
                                                     <span className="kindle-event-text">
