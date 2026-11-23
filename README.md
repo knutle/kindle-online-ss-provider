@@ -13,8 +13,8 @@ The Laravel application is in [`src/`](src/). Its
 ## Example usage
 
 With the application running locally, open the interactive dashboard at
-<http://localhost:8000/dashboard>. The root URL redirects there, preserving
-query parameters. To request an image for a city, use:
+<http://localhost:8000/dashboard>; the root URL is not served. To request an
+image for a city, use:
 
 ```text
 http://localhost:8000/dashboard.png?city=London
@@ -50,8 +50,7 @@ The setup command installs PHP and JavaScript dependencies, creates the local
 environment file and application key, runs database migrations, installs the
 headless Chrome browser used for PNG rendering, and builds frontend assets.
 SQLite is configured by default. Once the development server is running, visit
-<http://localhost:8000/dashboard>. The authenticated account dashboard is
-available at <http://localhost:8000/account/dashboard>.
+<http://localhost:8000/dashboard>.
 
 To test the calendar layout in a browser, run `npm run test:calendar-layout`
 from `src/` after installing the Puppeteer browser (`npm run browser:install`).
@@ -81,7 +80,7 @@ it as a secret and avoid logging or sharing it.
 The application is built with Laravel 13, PHP, Inertia.js, React, TypeScript,
 and Vite Plus. Important runtime dependencies include:
 
-- **PHP:** Laravel Framework, Inertia Laravel, Laravel Fortify, Laravel
+- **PHP:** Laravel Framework, Inertia Laravel, Laravel
   Wayfinder, Spatie Browsershot, and sabre/vobject (iCal parsing).
 - **JavaScript:** React, Inertia React, Vite Plus, Tailwind CSS, and Puppeteer.
   Puppeteer supplies the headless Chrome browser used by Browsershot.
@@ -123,8 +122,10 @@ there does not fail the deploy.
 Notes:
 
 - The container uses cookie sessions, file cache, and a throwaway SQLite
-  database, so state is lost when the container sleeps. Use an external
-  database if you need persistent Fortify accounts.
+  database, so state is lost when the container sleeps. Authentication and user
+  accounts are not provided. Existing user, password-reset, and passkey tables
+  are not removed from an existing database; remove them separately if no
+  longer needed.
 - `APP_URL` is `http://127.0.0.1:8080` inside the container because Browsershot
   renders the dashboard by requesting the app's own URL.
 - `/dashboard.png` responses are served with `Cache-Control: max-age=600`.

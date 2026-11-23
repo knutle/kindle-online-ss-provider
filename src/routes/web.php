@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', fn (Request $request) => redirect()->to(route('home', $request->query(), absolute: false)));
-
 Route::get('/dashboard', function (Request $request, CalendarEvents $calendar) {
     $calendarInput = $request->input('calendar');
     $overview = $calendar->overview(
@@ -20,9 +18,3 @@ Route::get('/dashboard', function (Request $request, CalendarEvents $calendar) {
     ]);
 })->name('home');
 Route::get('/dashboard.png', DashboardImageController::class)->name('dashboard.image');
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('account/dashboard', 'dashboard')->name('dashboard');
-});
-
-require __DIR__.'/settings.php';
