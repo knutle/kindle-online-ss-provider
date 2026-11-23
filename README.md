@@ -13,7 +13,8 @@ The Laravel application is in [`src/`](src/). Its
 ## Example usage
 
 With the application running locally, open the interactive dashboard at
-<http://localhost:8000>. To request an image for a city, use:
+<http://localhost:8000/dashboard>. The root URL redirects there, preserving
+query parameters. To request an image for a city, use:
 
 ```text
 http://localhost:8000/dashboard.png?city=London
@@ -49,7 +50,8 @@ The setup command installs PHP and JavaScript dependencies, creates the local
 environment file and application key, runs database migrations, installs the
 headless Chrome browser used for PNG rendering, and builds frontend assets.
 SQLite is configured by default. Once the development server is running, visit
-<http://localhost:8000>.
+<http://localhost:8000/dashboard>. The authenticated account dashboard is
+available at <http://localhost:8000/account/dashboard>.
 
 To test the calendar layout in a browser, run `npm run test:calendar-layout`
 from `src/` after installing the Puppeteer browser (`npm run browser:install`).

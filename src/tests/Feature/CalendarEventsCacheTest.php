@@ -102,7 +102,7 @@ class CalendarEventsCacheTest extends TestCase
         ]);
 
         $this->get(
-            '/?calendar%5B%5D='.rawurlencode('https://a.example.com/x.ics')
+            '/dashboard?calendar%5B%5D='.rawurlencode('https://a.example.com/x.ics')
             .'&calendar%5B%5D='.rawurlencode('https://b.example.com/x.ics'),
         )->assertInertia(fn (Assert $page) => $page
             ->component('weather-dashboard')

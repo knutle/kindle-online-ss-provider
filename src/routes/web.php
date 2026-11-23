@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function (Request $request, CalendarEvents $calendar) {
+Route::get('/', fn (Request $request) => redirect()->to(route('home', $request->query(), absolute: false)));
+
+Route::get('/dashboard', function (Request $request, CalendarEvents $calendar) {
     $calendarInput = $request->input('calendar');
     $overview = $calendar->overview(
         is_string($calendarInput) || is_array($calendarInput) ? $calendarInput : null,
@@ -20,7 +22,7 @@ Route::get('/', function (Request $request, CalendarEvents $calendar) {
 Route::get('/dashboard.png', DashboardImageController::class)->name('dashboard.image');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::inertia('account/dashboard', 'dashboard')->name('dashboard');
 });
 
 require __DIR__.'/settings.php';

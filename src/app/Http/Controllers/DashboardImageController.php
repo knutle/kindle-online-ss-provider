@@ -66,7 +66,7 @@ class DashboardImageController extends Controller
             ]);
         }
 
-        $dashboardUrl = rtrim(config('app.url'), '/').'/?'.http_build_query([
+        $dashboardUrl = rtrim(config('app.url'), '/').route('home', [
             'latitude' => $location['latitude'],
             'longitude' => $location['longitude'],
             'label' => $location['name'],
@@ -75,7 +75,7 @@ class DashboardImageController extends Controller
                 ? $input['calendars'][0]
                 : $input['calendars'],
             'screenshot' => '1',
-        ], '', '&', PHP_QUERY_RFC3986);
+        ], absolute: false);
 
         try {
             $png = $renderer->render($dashboardUrl, self::WIDTH, self::HEIGHT);
